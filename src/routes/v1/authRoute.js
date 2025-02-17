@@ -7,4 +7,8 @@ const Router = express.Router()
 Router.route('/login')
   .post(authValidation.login, authController.login)
 
+Router.route('/register')
+  .post(authValidation.register, authController.register)
+
+
 export const authRoute = Router
