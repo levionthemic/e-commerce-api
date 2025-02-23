@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-const nodemailer = require('nodemailer')
+import nodemailer from 'nodemailer'
 
-module.exports.sendMail = (email, subject, html) => {
+export const sendMail = (email, subject, html) => {
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {

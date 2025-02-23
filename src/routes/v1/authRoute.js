@@ -7,4 +7,16 @@ const Router = express.Router()
 Router.route('/login')
   .post(authValidation.login, authController.login)
 
+Router.route('/register')
+  .post(authValidation.register, authController.register)
+
+Router.route('/verify-account')
+  .put(authValidation.verifyAccount, authController.verifyAccount)
+
+Router.route('/logout')
+  .delete(authController.logout)
+
+Router.route('/refresh-token')
+  .get(authController.refreshToken)
+
 export const authRoute = Router

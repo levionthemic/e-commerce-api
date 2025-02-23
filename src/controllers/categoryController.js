@@ -5,7 +5,7 @@ const getListCategories = async (req, res, next) => {
   try {
     const listAllCategories = await categoryService.getListCategories()
 
-    res.status(StatusCodes.OK).json({ categories: listAllCategories })
+    res.status(StatusCodes.OK).json(listAllCategories)
   } catch (error) { next(error) }
 }
 

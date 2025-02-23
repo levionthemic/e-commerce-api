@@ -3,6 +3,8 @@ import { StatusCodes } from 'http-status-codes'
 import { productRoute } from './productRoute'
 import { categoryRoute } from './categoryRoute'
 import { authRoute } from './authRoute'
+import { authMiddleware } from '~/middlewares/authMiddleware'
+import { cartRoute } from './cartRoute'
 
 const Router = express.Router()
 
@@ -13,9 +15,10 @@ Router.get('/status', (req, res) => {
 })
 
 /* Buyer APIs */
-Router.use('/products', productRoute)
-Router.use('/categories', categoryRoute)
+Router.use('/products', authMiddleware.isAuthorized, productRoute)
+Router.use('/categories', authMiddleware.isAuthorized, categoryRoute)
 Router.use('/auth', authRoute)
+Router.use('/carts', authMiddleware.isAuthorized, cartRoute)
 
 /* Seller APIs */
 
