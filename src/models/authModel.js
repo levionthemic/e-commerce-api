@@ -37,6 +37,8 @@ const USER_COLLECTION_SCHEMA = Joi.object({
   _deleted: Joi.boolean().default(false)
 })
 
+const INVALID_UPDATE_FIELDS = ['_id', 'email', 'username', 'createdAt']
+
 const validateBeforeAsync = async (data) => {
   return await USER_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
@@ -63,6 +65,23 @@ const register = async (userData) => {
   } catch (error) { throw new Error(error) }
 }
 
+const update = async (userId, userData) => {
+  try {
+    Object.keys(userData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete userData[fieldName]
+      }
+    })
+
+    const updatedUser = await GET_DB().collection(USER_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $set: userData },
+      { returnDocument: 'after' }
+    )
+    return updatedUser
+  } catch (error) { throw new Error(error) }
+}
+
 export const authModel = {
   USER_COLLECTION_NAME,
   USER_COLLECTION_SCHEMA,
@@ -70,5 +89,6 @@ export const authModel = {
   USER_GENDERS,
   register,
   findOneById,
-  findOneByEmail
+  findOneByEmail,
+  update
 }

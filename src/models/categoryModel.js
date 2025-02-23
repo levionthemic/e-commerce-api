@@ -11,11 +11,13 @@ const CATEGORY_COLLECTION_SCHEMA = Joi.object({
 
 const getListCategories = async () => {
   try {
-    const listAllCategories = await GET_DB().collection(CATEGORY_COLLECTION_NAME).find({}).toArray()
+    const listAllCategories = await GET_DB().collection(CATEGORY_COLLECTION_NAME).find({}).limit(12).toArray()
     return listAllCategories
   } catch (error) { throw new Error(error) }
 }
 
 export const categoryModel = {
+  CATEGORY_COLLECTION_NAME,
+  CATEGORY_COLLECTION_SCHEMA,
   getListCategories
 }
