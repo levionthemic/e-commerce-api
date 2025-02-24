@@ -17,7 +17,17 @@ const createProduct = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getDetails = async (req, res, next) => {
+  try {
+    const productId = req.params?.id
+    const product = await productService.getDetails(productId)
+
+    res.status(StatusCodes.OK).json(product)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
   getProducts,
-  createProduct
+  createProduct,
+  getDetails
 }

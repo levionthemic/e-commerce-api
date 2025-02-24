@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 import Joi from 'joi'
+import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
@@ -35,9 +36,19 @@ const createProduct = async (productData) => {
   } catch (error) { throw new Error(error) }
 }
 
+const getDetails = async (productId) => {
+  try {
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({
+      _id: new ObjectId(productId)
+    })
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const productModel = {
   PRODUCT_COLLECTION_NAME,
   PRODUCT_COLLECTION_SCHEMA,
   getProducts,
-  createProduct
+  createProduct,
+  getDetails
 }

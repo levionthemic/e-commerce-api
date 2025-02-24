@@ -19,6 +19,9 @@ const login = async (reqBody) => {
     if (!bcryptjs.compareSync(reqBody.password, existUser.password)) {
       throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Email hoặc Mật khẩu của bạn chưa đúng!')
     }
+    if (reqBody.role !== existUser.role) {
+      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Vai trò không khớp!')
+    }
 
     const userInfo = {
       _id: existUser._id,

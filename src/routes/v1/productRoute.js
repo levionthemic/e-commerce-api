@@ -11,8 +11,8 @@ Router.route('/')
 // Router.route('/search')
 //   .get(productController.searchProducts)
 
-// Router.route('/:id')
-//   .get(productController.getDetails)
+Router.route('/:id')
+  .get(productController.getDetails)
 //   .put(productValidation.updateProduct, productController.updateProduct)
 //   .delete(productController.deleteProduct)
 

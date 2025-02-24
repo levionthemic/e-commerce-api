@@ -16,7 +16,15 @@ const createProduct = async (reqBody) => {
   } catch (error) { throw error }
 }
 
+const getDetails = async (productId) => {
+  try {
+    const product = await productModel.getDetails(productId)
+    return product
+  } catch (error) { throw error }
+}
+
 export const productService = {
   getProducts,
-  createProduct
+  createProduct,
+  getDetails
 }
