@@ -104,7 +104,7 @@ const verifyAccount = async (reqBody) => {
 
 const refreshToken = async (clientRefreshToken) => {
   try {
-    const refresTokenDecoded = await JwtProvider.verifyToken(
+    const refresTokenDecoded = await JwtProvider.verify(
       clientRefreshToken,
       env.REFRESH_TOKEN_SECRET_SIGNATURE
     )
