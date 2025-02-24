@@ -7,12 +7,12 @@ const isAuthorized = async (req, res, next) => {
   const clientAccessToken = req.cookies?.accessToken
 
   if (!clientAccessToken) {
-    next(new ApiError(StatusCodes.UNAUTHORIZED), 'Unauthorized! Please Login!')
+    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized! Please Login!'))
     return
   }
 
   try {
-    const accessTokenDecoded = JwtProvider.verify(
+    const accessTokenDecoded = await JwtProvider.verify(
       clientAccessToken,
       env.ACCESS_TOKEN_SECRET_SIGNATURE
     )
@@ -22,11 +22,11 @@ const isAuthorized = async (req, res, next) => {
     next()
   } catch (error) {
     if (error?.message?.includes('jwt expired')) {
-      next(new ApiError(StatusCodes.GONE), 'Need to refresh token!')
+      next(new ApiError(StatusCodes.GONE, 'Need to refresh token!'))
       return
     }
 
-    next(new ApiError(StatusCodes.UNAUTHORIZED), 'Unauthorized! Please Login!')
+    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Unauthorized! Please Login!'))
   }
 }
 

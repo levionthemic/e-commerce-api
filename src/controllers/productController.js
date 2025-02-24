@@ -26,8 +26,19 @@ const getDetails = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const update = async (req, res, next) => {
+  try {
+    const productId = req.params?.id
+    const userInfo = req.jwtDecoded
+    const updatedProduct = await productService.update(productId, req.body, userInfo)
+
+    res.status(StatusCodes.OK).json(updatedProduct)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
   getProducts,
   createProduct,
-  getDetails
+  getDetails,
+  update
 }

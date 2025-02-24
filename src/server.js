@@ -13,6 +13,11 @@ import cookieParser from 'cookie-parser'
 const START_SERVER = () => {
   const app = express()
 
+  app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store')
+    next()
+  })
+
   app.use(cookieParser())
 
   app.use(express.json())
