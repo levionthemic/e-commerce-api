@@ -13,7 +13,7 @@ Router.route('/')
 
 Router.route('/:id')
   .get(productController.getDetails)
-//   .put(productValidation.updateProduct, productController.updateProduct)
+  .put(productValidation.update, productController.update)
 //   .delete(productController.deleteProduct)
 
 export const productRoute = Router

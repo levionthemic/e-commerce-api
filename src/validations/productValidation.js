@@ -24,6 +24,22 @@ const createProduct = async (req, res, next) => {
     next()
   } catch (error) { next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message)) }
 }
+
+const update = async (req, res, next) => {
+  const validateCondition = Joi.object({
+    commentToAdd: Joi.object({
+      userAvatar: Joi.string(),
+      userDisplayName: Joi.string().trim().strict(),
+      content: Joi.string().trim().strict()
+    }).optional()
+  })
+
+  try {
+    await validateCondition.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error) { next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message)) }
+}
 export const productValidation = {
-  createProduct
+  createProduct,
+  update
 }
