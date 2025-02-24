@@ -2,7 +2,8 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { authModel } from './authModel'
 
 const PRODUCT_COLLECTION_NAME = 'products'
 const PRODUCT_COLLECTION_SCHEMA = Joi.object({
@@ -16,6 +17,16 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   quantityInStock: Joi.number().required().min(0),
   quantitySold: Joi.number().min(0),
   categoryId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+
+  // Comments
+  comments: Joi.array().items({
+    userId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    userEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
+    userAvatar: Joi.string(),
+    userDisplayName: Joi.string(),
+    content: Joi.string(),
+    commentedAt: Joi.date().timestamp()
+  }).default([]),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -45,10 +56,22 @@ const getDetails = async (productId) => {
   } catch (error) { throw new Error(error) }
 }
 
+const unshiftNewComment = async (productId, commentToAdd) => {
+  try {
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(productId) },
+      { $push: { comments: { $each: [commentToAdd], $position: 0 } } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const productModel = {
   PRODUCT_COLLECTION_NAME,
   PRODUCT_COLLECTION_SCHEMA,
   getProducts,
   createProduct,
-  getDetails
+  getDetails,
+  unshiftNewComment
 }
