@@ -3,7 +3,8 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { authModel } from './authModel'
+import { pagingSkipValue } from '~/utils/algorithms'
+import unidecode from 'unidecode'
 
 const PRODUCT_COLLECTION_NAME = 'products'
 const PRODUCT_COLLECTION_SCHEMA = Joi.object({
@@ -33,10 +34,45 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   _deleted: Joi.boolean().default(false)
 })
 
-const getProducts = async () => {
+const getProducts = async (page, itemsPerPage, queryFilters) => {
   try {
-    const listProducts = await GET_DB().collection(PRODUCT_COLLECTION_NAME).find({}).limit(100).toArray()
-    return listProducts
+    const queryConditions = [{ _deleted: false }]
+
+    if (queryFilters) {
+      Object.keys(queryFilters).forEach(key => {
+        if (key === 'name') {
+          const slug = unidecode(queryFilters[key]).trim().replace(/\s+/g, '-')
+          const regexSlug = new RegExp(slug, 'i')
+
+          queryConditions.push({ $or: [
+            { [key]: { $regex: new RegExp(queryFilters[key], 'i') } },
+            { slug: { $regex: regexSlug } }
+          ] })
+        }
+      })
+    }
+
+    const query = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate(
+      [
+        { $match: { $and: queryConditions } },
+        // { $sort: { name: 1 } },
+        { $facet: {
+          'queryProducts': [
+            { $skip: pagingSkipValue(page, itemsPerPage) },
+            { $limit: itemsPerPage }
+          ],
+          'queryTotalProducts': [{ $count: 'totalProductsCount' }]
+        } }
+      ],
+      { collation: { locale: 'en' } }
+    ).toArray()
+
+    const res = query[0]
+
+    return {
+      products: res.queryProducts || [],
+      totalProducts: res.queryTotalProducts[0]?.totalProductsCount || 0
+    }
   } catch (error) { throw new Error(error) }
 }
 

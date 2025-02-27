@@ -1,11 +1,15 @@
 import { productModel } from '~/models/productModel'
+import { DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 import { slugify } from '~/utils/formatters'
 
 /* eslint-disable no-useless-catch */
-const getProducts = async () => {
+const getProducts = async (page, itemsPerPage, queryFilters) => {
   try {
-    const listProducts = await productModel.getProducts()
-    return listProducts || []
+    if (!page) page = 1
+    if (!itemsPerPage) itemsPerPage = DEFAULT_ITEMS_PER_PAGE
+
+    const results = await productModel.getProducts(page, itemsPerPage, queryFilters)
+    return results
   } catch (error) { throw error }
 }
 

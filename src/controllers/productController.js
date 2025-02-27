@@ -3,7 +3,9 @@ import { productService } from '~/services/productService'
 
 const getProducts = async (req, res, next) => {
   try {
-    const listProducts = await productService.getProducts()
+    const { page, itemsPerPage, q } = req.query
+    const queryFilters = q
+    const listProducts = await productService.getProducts(page, itemsPerPage, queryFilters)
 
     res.status(StatusCodes.OK).json(listProducts)
   } catch (error) { next(error) }
