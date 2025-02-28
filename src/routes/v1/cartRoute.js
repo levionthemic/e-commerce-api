@@ -4,6 +4,6 @@ import { cartController } from '~/controllers/cartController'
 const Router = express.Router()
 
 Router.route('/')
-  .get(cartController.getCarts)
+  .get(cartController.getCart)
 
 export const cartRoute = Router

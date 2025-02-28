@@ -1,13 +1,13 @@
 /* eslint-disable no-useless-catch */
 import { cartModel } from '~/models/cartModel'
 
-export const getCarts = async (userId) => {
+export const getCart = async (userId) => {
   try {
-    const result = await cartModel.getCarts(userId)
+    const result = await cartModel.getCart(userId)
     return result
   } catch (error) { throw error }
 }
 
 export const cartService = {
-  getCarts
+  getCart
 }
