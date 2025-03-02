@@ -8,6 +8,7 @@ import { APIs_V1 } from '~/routes/v1'
 import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import { corsOptions } from './config/cors'
 import cookieParser from 'cookie-parser'
+import swaggerDocs from '~/docs/swagger'
 
 
 const START_SERVER = () => {
@@ -37,6 +38,7 @@ const START_SERVER = () => {
     app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
       console.log(`Hello Levion, I am running at ${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }`)
     })
+    swaggerDocs(app)
   }
   exitHook(() => CLOSE_DB())
 }
