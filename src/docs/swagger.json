@@ -5,12 +5,7 @@
     "version": "1.0.0",
     "description": "API endpoints for E-Commerce Website on Swagger"
   },
-  "servers": [
-    {
-      "url": "http://localhost:8017",
-      "description": "Local server"
-    }
-  ],
+  
   "paths": {},
   "components": {}
 }
