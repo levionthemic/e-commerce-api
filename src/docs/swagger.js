@@ -1,27 +1,14 @@
-import swaggerJsdoc from 'swagger-jsdoc'
 import swaggerUi from 'swagger-ui-express'
+import fs from 'fs'
+import deepmerge from 'deepmerge'
 
-const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'E-Commerce API',
-      description: 'API endpoints for E-Commerce Website on Swagger',
-      version: '1.0.0'
-    }
-  },
-  apis: ['./src/docs/*js'],
-  requestInterceptor: function (request) {
-    request.headers.Origin = `http://localhost:${process.env.PORT}`
-    return request
-  },
-  url: `http://localhost:${process.env.PORT}/api-docs`
-}
+const baseDoc = JSON.parse(fs.readFileSync('./src/docs/swagger.json', 'utf8'))
+const productDoc = JSON.parse(fs.readFileSync('./src/docs/productDoc.json', 'utf8'))
 
-const swaggerSpec = swaggerJsdoc(options)
+const swaggerDocument = deepmerge.all([baseDoc, productDoc])
 
 const swaggerDocs = (app) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 }
 
 export default swaggerDocs
