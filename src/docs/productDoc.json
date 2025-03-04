@@ -1,0 +1,157 @@
+{
+  "tags": [
+    {
+      "name": "Product",
+      "description": "API Product Management"
+    }
+  ],
+  "paths": {
+    "/v1/products": {
+      "get": {
+        "tags": ["Product"],
+        "summary": "Get list of products with pagination and search",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "Current page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "itemsPerPage",
+            "description": "Current page",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "description": "Object of query filters",
+            "schema": {
+              "type": "object",
+              "example": {
+                "application/json": {
+                  "schema": {
+                    "name": "dien-thoai"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Products not found"
+          },
+          "500": {
+            "description": "Interval server error"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Product"],
+        "summary": "Create product",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "quantityInStock", "thumbnailUrl"],
+                "properties": [
+                  {
+                    "name": {
+                      "type": "string",
+                      "example": "Điện thoại Iphone 16"
+                    },
+                    "quantityInStock": {
+                      "type": "integer",
+                      "example": "100"
+                    },
+                    "thumbnailUrl": {
+                      "type": "string",
+                      "example": "..."
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/products/{id}": {
+      "get": {
+        "tags": ["Product"],
+        "summary": "Get details of a product",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "679f478a32f11bde48e61eeb"
+            },
+            "description": "Product's id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product details in JSON Object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Product": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "name": { "type": "string" },
+          "price": { "type": "integer" },
+          "discountPercentage": { "type": "integer" },
+          "rate": { "type": "number" },
+          "thumbnailUrl": { "type": "string" },
+          "description": { "type": "string" },
+          "quantityInStock": { "type": "integer" },
+          "quantitySold": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "E-Commerce API",
+    "version": "1.0.0",
+    "description": "API endpoints for E-Commerce Website on Swagger"
+  },
+  
+  "paths": {},
+  "components": {}
+}
