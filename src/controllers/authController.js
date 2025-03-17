@@ -5,7 +5,13 @@ import ApiError from '~/utils/ApiError'
 
 const login = async (req, res, next) => {
   try {
-    const result = await authService.login(req.body)
+    let result = {}
+
+    if (req.body.access_token) {
+      result = await authService.loginWithGoogle(req.body)
+    } else {
+      result = await authService.login(req.body)
+    }
 
     res.cookie('accessToken', result.accessToken, {
       httpOnly: true,

@@ -8,6 +8,7 @@ import { pickUser } from '~/utils/formatters'
 import { sendMail } from '~/utils/sendMail'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
+import axios from 'axios'
 
 /* eslint-disable no-useless-catch */
 const login = async (reqBody) => {
@@ -22,6 +23,42 @@ const login = async (reqBody) => {
     if (reqBody.role !== existUser.role) {
       throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Vai trò không khớp!')
     }
+
+    const userInfo = {
+      _id: existUser._id,
+      email: existUser.email
+    }
+
+    const accessToken = await JwtProvider.generateToken(
+      userInfo,
+      env.ACCESS_TOKEN_SECRET_SIGNATURE,
+      env.ACCESS_TOKEN_LIFE
+    )
+
+    const refreshToken = await JwtProvider.generateToken(
+      userInfo,
+      env.REFRESH_TOKEN_SECRET_SIGNATURE,
+      env.REFRESH_TOKEN_LIFE
+    )
+
+    return { ...pickUser(existUser), accessToken, refreshToken }
+  } catch (error) { throw error }
+}
+
+const loginWithGoogle = async (reqBody) => {
+  const googleAccessToken = reqBody.access_token
+  try {
+    const googleRes = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${googleAccessToken}`)
+    const user = googleRes.data
+
+    if (user.aud !== env.GOOGLE_CLIENT_ID) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Unauthorized: Invalid token audience')
+    }
+
+    const existUser = await authModel.findOneByEmail(user.email)
+
+    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản của bạn không tồn tại!')
+    if (!existUser.isVerified) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra và xác thực trong email của bạn!')
 
     const userInfo = {
       _id: existUser._id,
@@ -126,6 +163,7 @@ const refreshToken = async (clientRefreshToken) => {
 
 export const authService = {
   login,
+  loginWithGoogle,
   register,
   verifyAccount,
   refreshToken

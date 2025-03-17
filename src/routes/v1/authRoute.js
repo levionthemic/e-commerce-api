@@ -6,6 +6,8 @@ const Router = express.Router()
 
 Router.route('/login')
   .post(authValidation.login, authController.login)
+Router.route('/login/google/callback')
+  .post(authController.login)
 
 Router.route('/register')
   .post(authValidation.register, authController.register)
