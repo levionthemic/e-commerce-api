@@ -1,4 +1,4 @@
-import { productModel } from '~/models/old-productModel'
+import { productModel } from '~/models/productModel'
 import { DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 import { slugify } from '~/utils/formatters'
 

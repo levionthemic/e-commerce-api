@@ -32,27 +32,6 @@ const BUYER_COLLECTION_SCHEMA = Joi.object({
     _deleted: Joi.boolean().default(false)
   }),
 
-  searchLog: Joi.array().items({
-    query: Joi.string(),
-    createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    updatedAt: Joi.date().timestamp('javascript').default(null),
-    _deleted: Joi.boolean().default(false)
-  }),
-
-  viewLog: Joi.array().items({
-    productId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    updatedAt: Joi.date().timestamp('javascript').default(null),
-    _deleted: Joi.boolean().default(false)
-  }),
-
-  notiLog: Joi.array().items({
-    notiId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    updatedAt: Joi.date().timestamp('javascript').default(null),
-    _deleted: Joi.boolean().default(false)
-  }),
-
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _deleted: Joi.boolean().default(false)

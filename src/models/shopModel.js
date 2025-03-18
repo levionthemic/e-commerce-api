@@ -12,16 +12,6 @@ const SHOP_COLLECTION_SCHEMA = Joi.object({
     ward: Joi.string().required().trim().strict(),
     detail: Joi.string().required().trim().strict()
   }),
-  itemList: Joi.array().items(
-    {
-      productId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-      typeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).default(null),
-      stock: Joi.number(),
-      createdAt: Joi.date().timestamp('javascript').default(Date.now),
-      updatedAt: Joi.date().timestamp('javascript').default(null),
-      _deleted: Joi.boolean().default(false)
-    }
-  ),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _deleted: Joi.boolean().default(false)
