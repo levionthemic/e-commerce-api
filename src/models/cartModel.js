@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 import { productModel } from './productModel'
+import { GET_DB } from '~/config/mongodb'
 
 const CART_COLLECTION_NAME = 'carts'
 const CART_COLLECTION_SCHEMA = Joi.object({

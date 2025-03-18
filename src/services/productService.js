@@ -27,29 +27,8 @@ const getDetails = async (productId) => {
   } catch (error) { throw error }
 }
 
-const update = async (productId, reqBody, userInfo) => {
-  try {
-    let updatedProduct = {}
-
-    if (reqBody?.commentToAdd) {
-      // Add Comment
-      const newCommentData = {
-        ...reqBody.commentToAdd,
-        userId: userInfo._id,
-        userEmail: userInfo.email,
-        commentedAt: Date.now()
-      }
-
-      updatedProduct = await productModel.unshiftNewComment(productId, newCommentData)
-    }
-
-    return updatedProduct
-  } catch (error) { throw error }
-}
-
 export const productService = {
   getProducts,
   createProduct,
-  getDetails,
-  update
+  getDetails
 }

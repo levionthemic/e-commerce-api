@@ -4,6 +4,7 @@ import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE,
 
 
 
+
 const SELLER_COLLECTION_NAME = 'sellers'
 const SELLER_COLLECTION_SCHEMA = Joi.object({
   username: Joi.string().required().trim().strict(),

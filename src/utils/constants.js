@@ -9,7 +9,13 @@ export const WEBSITE_DOMAIN = (env.BUILD_MODE === 'dev') ? env.WEBSITE_DOMAIN_DE
 export const DEFAULT_ITEMS_PER_PAGE = 40
 
 export const GENDER = {
-  MALE: "male",
-  FEMALE: "female",
-  OTHER: "other"
+  MALE: 'male',
+  FEMALE: 'female',
+  OTHER: 'other'
+}
+
+export const ACCOUNT_ROLE = {
+  BUYER: 'buyer',
+  SELLER: 'seller',
+  ADMIN: 'admin'
 }
