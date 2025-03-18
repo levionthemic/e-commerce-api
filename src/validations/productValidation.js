@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
-import { productModel } from '~/models/productModel'
+import { productModel } from '~/models/old-productModel'
 import ApiError from '~/utils/ApiError'
 import { slugify } from '~/utils/formatters'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
