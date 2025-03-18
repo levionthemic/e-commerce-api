@@ -2,7 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { pipeline } from 'nodemailer/lib/xoauth2'
 import { GET_DB } from '~/config/mongodb'
-import { productModel } from '~/models/old-productModel'
+import { productModel } from '~/models/productModel'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 const CART_COLLECTION_NAME = 'carts'
