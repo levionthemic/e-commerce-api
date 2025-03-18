@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-catch */
-import { cartModel } from '~/models/cartModel'
+import { cartModel } from '~/models/old-cartModel'
 
 export const getCart = async (userId) => {
   try {

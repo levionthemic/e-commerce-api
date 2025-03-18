@@ -1,25 +1,19 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
+import { pipeline } from 'nodemailer/lib/xoauth2'
+import { GET_DB } from '~/config/mongodb'
+import { productModel } from '~/models/productModel'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { productModel } from './productModel'
 
 const CART_COLLECTION_NAME = 'carts'
 const CART_COLLECTION_SCHEMA = Joi.object({
-  buyerId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-  itemList: Joi.array().items(
+  userId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  products: Joi.array().items(
     {
       productId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-      typeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-      quantity: Joi.number().default(1),
-      createdAt: Joi.date().timestamp('javascript').default(Date.now),
-      updatedAt: Joi.date().timestamp('javascript').default(null),
-      _deleted: Joi.boolean().default(false)
+      quantity: Joi.number().default(1)
     }
-  ),
-
-  createdAt: Joi.date().timestamp('javascript').default(Date.now),
-  updatedAt: Joi.date().timestamp('javascript').default(null),
-  _deleted: Joi.boolean().default(false)
+  )
 })
 
 const getCart = async (userId) => {
