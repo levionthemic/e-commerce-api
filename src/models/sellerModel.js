@@ -4,8 +4,8 @@ import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE,
 
 
 
-const BUYER_COLLECTION_NAME = 'buyers'
-const BUYER_COLLECTION_SCHEMA = Joi.object({
+const SELLER_COLLECTION_NAME = 'sellers'
+const SELLER_COLLECTION_SCHEMA = Joi.object({
   username: Joi.string().required().trim().strict(),
   name: Joi.string().required().trim().strict(),
   email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
@@ -31,7 +31,7 @@ const BUYER_COLLECTION_SCHEMA = Joi.object({
   _deleted: Joi.boolean().default(false)
 })
 
-export const buyerModel = {
-  BUYER_COLLECTION_NAME,
-  BUYER_COLLECTION_SCHEMA
+export const sellerModel = {
+  SELLER_COLLECTION_NAME,
+  SELLER_COLLECTION_SCHEMA
 }
