@@ -3,8 +3,8 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 
 
-const BRAND_COLLECTION_NAME = 'brands'
-const BRAND_COLLECTION_SCHEMA = Joi.object({
+const DISCOUNT_COLLECTION_NAME = 'discounts'
+const DISCOUNT_COLLECTION_SCHEMA = Joi.object({
   name: Joi.string().required().trim().strict(),
   description: Joi.string(),
   discount: Joi.number().required(),
@@ -14,7 +14,7 @@ const BRAND_COLLECTION_SCHEMA = Joi.object({
   _deleted: Joi.boolean().default(false)
 })
 
-export const brandModel = {
-  BRAND_COLLECTION_NAME,
-  BRAND_COLLECTION_SCHEMA
+export const discountModel = {
+  DISCOUNT_COLLECTION_NAME,
+  DISCOUNT_COLLECTION_SCHEMA
 }

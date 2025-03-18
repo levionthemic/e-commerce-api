@@ -10,7 +10,7 @@ const SEARCH_LOG_COLLECTION_SCHEMA = Joi.object({
   _deleted: Joi.boolean().default(false)
 })
 
-export const viewLogModel = {
+export const searchLogModel = {
   SEARCH_LOG_COLLECTION_NAME,
   SEARCH_LOG_COLLECTION_SCHEMA
 }
