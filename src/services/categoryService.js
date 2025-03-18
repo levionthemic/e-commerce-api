@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-catch */
-import { categoryModel } from '~/models/categoryModel'
+import { categoryModel } from '~/models/old-categoryModel'
 
 const getListCategories = async () => {
   try {
