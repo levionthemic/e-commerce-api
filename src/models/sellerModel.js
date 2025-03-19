@@ -22,10 +22,10 @@ const SELLER_COLLECTION_SCHEMA = Joi.object({
     _deleted: Joi.boolean().default(false)
   }),
   notiLog: Joi.array().items({
-    notiId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    updatedAt: Joi.date().timestamp('javascript').default(null),
-    _deleted: Joi.boolean().default(false)
+    title: Joi.string().trim().strict(),
+    description: Joi.string(),
+    type: Joi.string().trim().strict(),
+    source: Joi.string().trim().strict()
   }),
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),

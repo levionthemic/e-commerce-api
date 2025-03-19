@@ -16,6 +16,12 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
   shippingAddress: Joi.string().required(),
   shippingMethod: Joi.string().required(),
   trackingNumber: Joi.string(),
+  itemList: Joi.array().items(
+    {
+      typeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+      quantity: Joi.number().required(),
+    }
+  ),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
