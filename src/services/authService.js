@@ -1,27 +1,36 @@
 import { StatusCodes } from 'http-status-codes'
-import { authModel } from '~/models/authModel'
 import ApiError from '~/utils/ApiError'
 import bcryptjs from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
-import { WEBSITE_DOMAIN } from '~/utils/constants'
+import { ACCOUNT_ROLE, WEBSITE_DOMAIN } from '~/utils/constants'
 import { pickUser } from '~/utils/formatters'
 import { sendMail } from '~/utils/sendMail'
 import { JwtProvider } from '~/providers/JwtProvider'
 import { env } from '~/config/environment'
 import axios from 'axios'
+import { buyerModel } from '~/models/buyerModel'
+import { sellerModel } from '~/models/sellerModel'
+import { cartModel } from '~/models/cartModel'
+
+const getModel = (role) => {
+  if (role === ACCOUNT_ROLE.BUYER) {
+    return buyerModel
+  } else if (role === ACCOUNT_ROLE.SELLER) {
+    return sellerModel
+  }
+  return null
+}
 
 /* eslint-disable no-useless-catch */
 const login = async (reqBody) => {
+
   try {
-    const existUser = await authModel.findOneByEmail(reqBody.email)
+    const existUser = await getModel(reqBody.role).findOneByEmail(reqBody.email)
 
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản của bạn không tồn tại!')
     if (!existUser.isVerified) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra và xác thực trong email của bạn!')
     if (!bcryptjs.compareSync(reqBody.password, existUser.password)) {
       throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Email hoặc Mật khẩu của bạn chưa đúng!')
-    }
-    if (reqBody.role !== existUser.role) {
-      throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Vai trò không khớp!')
     }
 
     const userInfo = {
@@ -55,7 +64,10 @@ const loginWithGoogle = async (reqBody) => {
       throw new ApiError(StatusCodes.FORBIDDEN, 'Unauthorized: Invalid token audience')
     }
 
-    const existUser = await authModel.findOneByEmail(user.email)
+    const existUserFromBuyer = await buyerModel.findOneByEmail(user.email)
+    const existUserFromSeller = await sellerModel.findOneByEmail(user.email)
+
+    const existUser = existUserFromBuyer || existUserFromSeller
 
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản của bạn không tồn tại!')
     if (!existUser.isVerified) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra và xác thực trong email của bạn!')
@@ -84,7 +96,7 @@ const loginWithGoogle = async (reqBody) => {
 const register = async (reqBody) => {
   try {
     // Check if email existed
-    const existUser = await authModel.findOneByEmail(reqBody.email)
+    const existUser = await getModel(reqBody.role).findOneByEmail(reqBody.email)
     if (existUser) {
       throw new ApiError(StatusCodes.CONFLICT, 'Email already existed!')
     }
@@ -93,20 +105,24 @@ const register = async (reqBody) => {
     const newUserData = {
       email: reqBody.email,
       password: bcryptjs.hashSync(reqBody.password, 8),
-      displayName: reqBody.email.split('@')[0],
-      role: reqBody.role,
+      username: reqBody.email.split('@')[0],
 
       isVerified: false,
       verifyToken: uuidv4()
 
     }
     // Insert user into DB
-    const createdUser = await authModel.register(newUserData)
+    const createdUser = await getModel(reqBody.role).register(newUserData)
+
+    // Create Cart if role is buyer
+    if (reqBody.role === ACCOUNT_ROLE.BUYER) {
+      await cartModel.createNew(createdUser.insertedId.toString())
+    }
 
     // Send verification link to user's email
-    const getNewUser = await authModel.findOneById(createdUser.insertedId)
+    const getNewUser = await getModel(reqBody.role).findOneById(createdUser.insertedId)
 
-    const verificationLink = `${WEBSITE_DOMAIN}/verify-account?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const verificationLink = `${WEBSITE_DOMAIN}/verify-account?email=${getNewUser.email}&token=${getNewUser.verifyToken}&role=${reqBody.role}`
     const customSubject = 'E-Commerce Website: Hãy xác thực email của bạn trước khi sử dụng dịch vụ của chúng tôi!'
     const htmlContent = `
       <h3>Please click the following link to verify your account:</h3>
@@ -122,7 +138,7 @@ const register = async (reqBody) => {
 
 const verifyAccount = async (reqBody) => {
   try {
-    const existUser = await authModel.findOneByEmail(reqBody.email)
+    const existUser = await getModel(reqBody.role).findOneByEmail(reqBody.email)
 
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản của bạn không tồn tại!')
     if (existUser.isVerified) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản của bạn đã được xác thực!')
@@ -133,7 +149,7 @@ const verifyAccount = async (reqBody) => {
       verifyToken: null
     }
 
-    const updatedUser = await authModel.update(existUser._id, updateData)
+    const updatedUser = await getModel(reqBody.role).update(existUser._id, updateData)
 
     return updatedUser
   } catch (error) { throw error }

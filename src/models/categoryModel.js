@@ -1,19 +1,29 @@
-const Joi = require('joi')
-const { GET_DB } = require('~/config/mongodb')
+import Joi from 'joi'
+import { GET_DB } from '~/config/mongodb'
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+
+
 
 const CATEGORY_COLLECTION_NAME = 'categories'
 const CATEGORY_COLLECTION_SCHEMA = Joi.object({
-  categoryId: Joi.number().required(),
-  iconUrl: Joi.string().required(),
-  name: Joi.string().trim().strict(),
-  sellerId: Joi.string().default(null)
+  name: Joi.string().required().trim().strict(),
+  description: Joi.string(),
+  avatar: Joi.string(),
+  parentCategoryId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).default(null),
+  childrenCategoryId: Joi.array().items(Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)).optional(),
+
+  createdAt: Joi.date().timestamp('javascript').default(Date.now),
+  updatedAt: Joi.date().timestamp('javascript').default(null),
+  _deleted: Joi.boolean().default(false)
 })
 
 const getListCategories = async () => {
   try {
-    const listAllCategories = await GET_DB().collection(CATEGORY_COLLECTION_NAME).find({}).limit(26).toArray()
-    return listAllCategories
-  } catch (error) { throw new Error(error) }
+    const categoryList = await GET_DB().collection(CATEGORY_COLLECTION_NAME).find({ _deleted: false }).toArray()
+    return categoryList
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 
 export const categoryModel = {
