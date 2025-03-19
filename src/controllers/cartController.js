@@ -3,8 +3,8 @@ import { cartService } from '~/services/cartService'
 
 const getCart = async (req, res, next) => {
   try {
-    const userId = req.jwtDecoded._id
-    const cart = await cartService.getCart(userId)
+    const buyerId = req.jwtDecoded._id
+    const cart = await cartService.getCart(buyerId)
 
     res.status(StatusCodes.OK).json(cart)
   } catch (error) { next(error) }

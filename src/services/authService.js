@@ -10,6 +10,7 @@ import { env } from '~/config/environment'
 import axios from 'axios'
 import { buyerModel } from '~/models/buyerModel'
 import { sellerModel } from '~/models/sellerModel'
+import { cartModel } from '~/models/cartModel'
 
 const getModel = (role) => {
   if (role === ACCOUNT_ROLE.BUYER) {
@@ -63,7 +64,10 @@ const loginWithGoogle = async (reqBody) => {
       throw new ApiError(StatusCodes.FORBIDDEN, 'Unauthorized: Invalid token audience')
     }
 
-    const existUser = await getModel(reqBody.role).findOneByEmail(user.email)
+    const existUserFromBuyer = await buyerModel.findOneByEmail(user.email)
+    const existUserFromSeller = await sellerModel.findOneByEmail(user.email)
+
+    const existUser = existUserFromBuyer || existUserFromSeller
 
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản của bạn không tồn tại!')
     if (!existUser.isVerified) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra và xác thực trong email của bạn!')
@@ -109,6 +113,11 @@ const register = async (reqBody) => {
     }
     // Insert user into DB
     const createdUser = await getModel(reqBody.role).register(newUserData)
+
+    // Create Cart if role is buyer
+    if (reqBody.role === ACCOUNT_ROLE.BUYER) {
+      await cartModel.createNew(createdUser.insertedId.toString())
+    }
 
     // Send verification link to user's email
     const getNewUser = await getModel(reqBody.role).findOneById(createdUser.insertedId)
