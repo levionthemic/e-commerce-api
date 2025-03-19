@@ -7,7 +7,7 @@ import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE,
 const BUYER_COLLECTION_NAME = 'buyers'
 const BUYER_COLLECTION_SCHEMA = Joi.object({
   username: Joi.string().required().trim().strict(),
-  name: Joi.string().required().trim().strict(),
+  name: Joi.string().trim().strict(),
   email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
   password: Joi.string().required().pattern(PASSWORD_RULE).message(PASSWORD_RULE_MESSAGE),
   phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
@@ -24,15 +24,9 @@ const BUYER_COLLECTION_SCHEMA = Joi.object({
   isVerified: Joi.boolean().required().default(false),
   verifyToken: Joi.string().required().default(null),
 
-  address: Joi.array().items({
-    province: Joi.string().required().trim().strict(),
-    district: Joi.string().required().trim().strict(),
-    ward: Joi.string().required().trim().strict(),
-    detail: Joi.string().required().trim().strict()
-  }),
   discountList: Joi.array().items({
     discountId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-    quantity: Joi.number.default(0),
+    quantity: Joi.number().default(0)
   }),
   notiLog: Joi.array().items({
     title: Joi.string().trim().strict(),

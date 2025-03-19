@@ -1,6 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import ApiError from '~/utils/ApiError'
+import { ACCOUNT_ROLE } from '~/utils/constants'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators'
 
 const USER_ROLES = {
@@ -38,7 +39,8 @@ const register = async (req, res, next) => {
 const verifyAccount = async (req, res, next) => {
   const correctCondition = Joi.object({
     email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
-    token: Joi.string().required()
+    token: Joi.string().required(),
+    role: Joi.string().required().valid(...Object.values(ACCOUNT_ROLE))
   })
 
   try {

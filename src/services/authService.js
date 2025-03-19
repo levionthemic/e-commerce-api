@@ -1,5 +1,4 @@
 import { StatusCodes } from 'http-status-codes'
-import { authModel } from '~/models/authModel'
 import ApiError from '~/utils/ApiError'
 import bcryptjs from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
@@ -91,7 +90,6 @@ const loginWithGoogle = async (reqBody) => {
 }
 
 const register = async (reqBody) => {
-
   try {
     // Check if email existed
     const existUser = await getModel(reqBody.role).findOneByEmail(reqBody.email)
@@ -103,20 +101,19 @@ const register = async (reqBody) => {
     const newUserData = {
       email: reqBody.email,
       password: bcryptjs.hashSync(reqBody.password, 8),
-      displayName: reqBody.email.split('@')[0],
-      role: reqBody.role,
+      username: reqBody.email.split('@')[0],
 
       isVerified: false,
       verifyToken: uuidv4()
 
     }
     // Insert user into DB
-    const createdUser = await authModel.register(newUserData)
+    const createdUser = await getModel(reqBody.role).register(newUserData)
 
     // Send verification link to user's email
-    const getNewUser = await authModel.findOneById(createdUser.insertedId)
+    const getNewUser = await getModel(reqBody.role).findOneById(createdUser.insertedId)
 
-    const verificationLink = `${WEBSITE_DOMAIN}/verify-account?email=${getNewUser.email}&token=${getNewUser.verifyToken}`
+    const verificationLink = `${WEBSITE_DOMAIN}/verify-account?email=${getNewUser.email}&token=${getNewUser.verifyToken}&role=${reqBody.role}`
     const customSubject = 'E-Commerce Website: Hãy xác thực email của bạn trước khi sử dụng dịch vụ của chúng tôi!'
     const htmlContent = `
       <h3>Please click the following link to verify your account:</h3>
