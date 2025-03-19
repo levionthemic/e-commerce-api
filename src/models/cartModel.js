@@ -11,7 +11,7 @@ const CART_COLLECTION_SCHEMA = Joi.object({
     {
       productId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
       typeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
-      quantity: Joi.number().required(),
+      quantity: Joi.number().required()
     }
   ),
 
@@ -36,8 +36,28 @@ const getCart = async (userId) => {
   } catch (error) { throw new Error(error) }
 }
 
+const findOneByBuyerId = async (buyerId) => {
+  try {
+    const result = await GET_DB().collection(CART_COLLECTION_NAME).findOne({ buyerId: new ObjectId(buyerId) })
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
+const updateItemLists = async (buyerId, itemList) => {
+  try {
+    const result = await GET_DB().collection(CART_COLLECTION_NAME).findOneAndUpdate(
+      { buyerId: new ObjectId(buyerId) },
+      { $set: { itemList: itemList } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const cartModel = {
   CART_COLLECTION_NAME,
   CART_COLLECTION_SCHEMA,
-  getCart
+  getCart,
+  findOneByBuyerId,
+  updateItemLists
 }
