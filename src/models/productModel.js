@@ -8,6 +8,7 @@ import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 const PRODUCT_COLLECTION_NAME = 'products'
 const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   sellerId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+  shopId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE).default(null),
   name: Joi.string().required().trim().strict(),
   categoryId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   brandId: Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
@@ -40,10 +41,12 @@ const getProducts = async (page, itemsPerPage, queryFilters) => {
           const slug = unidecode(queryFilters[key]).trim().replace(/\s+/g, '-')
           const regexSlug = new RegExp(slug, 'i')
 
-          queryConditions.push({ $or: [
-            { [key]: { $regex: new RegExp(queryFilters[key], 'i') } },
-            { slug: { $regex: regexSlug } }
-          ] })
+          queryConditions.push({
+            $or: [
+              { [key]: { $regex: new RegExp(queryFilters[key], 'i') } },
+              { slug: { $regex: regexSlug } }
+            ]
+          })
         }
       })
     }
@@ -52,13 +55,15 @@ const getProducts = async (page, itemsPerPage, queryFilters) => {
       [
         { $match: { $and: queryConditions } },
         // { $sort: { name: 1 } },
-        { $facet: {
-          'queryProducts': [
-            { $skip: pagingSkipValue(page, itemsPerPage) },
-            { $limit: itemsPerPage }
-          ],
-          'queryTotalProducts': [{ $count: 'totalProductsCount' }]
-        } }
+        {
+          $facet: {
+            'queryProducts': [
+              { $skip: pagingSkipValue(page, itemsPerPage) },
+              { $limit: itemsPerPage }
+            ],
+            'queryTotalProducts': [{ $count: 'totalProductsCount' }]
+          }
+        }
       ],
       { collation: { locale: 'en' } }
     ).toArray()

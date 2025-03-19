@@ -24,12 +24,15 @@ const BUYER_COLLECTION_SCHEMA = Joi.object({
   isVerified: Joi.boolean().required().default(false),
   verifyToken: Joi.string().required().default(null),
 
+  address: Joi.array().items({
+    province: Joi.string().required().trim().strict(),
+    district: Joi.string().required().trim().strict(),
+    ward: Joi.string().required().trim().strict(),
+    detail: Joi.string().required().trim().strict()
+  }),
   discountList: Joi.array().items({
     discountId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     quantity: Joi.number.default(0),
-    createdAt: Joi.date().timestamp('javascript').default(Date.now),
-    updatedAt: Joi.date().timestamp('javascript').default(null),
-    _deleted: Joi.boolean().default(false)
   }),
   notiLog: Joi.array().items({
     title: Joi.string().trim().strict(),

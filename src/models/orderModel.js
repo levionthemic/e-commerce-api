@@ -18,6 +18,7 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
   trackingNumber: Joi.string(),
   itemList: Joi.array().items(
     {
+      productId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
       typeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
       quantity: Joi.number().required(),
     }
