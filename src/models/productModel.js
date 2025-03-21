@@ -2,6 +2,7 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import unidecode from 'unidecode'
 import { GET_DB } from '~/config/mongodb'
+import { reviewModel } from '~/models/reviewModel'
 import { pagingSkipValue } from '~/utils/algorithms'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
@@ -103,8 +104,16 @@ const findOneById = async (id) => {
 
 const getDetails = async (productId) => {
   try {
-    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({ _id: new ObjectId(productId) })
-    return result
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
+      { $match: { _id: new ObjectId(productId) } },
+      { $lookup: {
+        from: reviewModel.REVIEW_COLLECTION_NAME,
+        localField: '_id',
+        foreignField: 'productId',
+        as: 'comments'
+      } }
+    ]).toArray()
+    return result[0] || null
   } catch (error) { throw new Error(error) }
 }
 

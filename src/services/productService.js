@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash'
+import { buyerModel } from '~/models/buyerModel'
 import { productModel } from '~/models/productModel'
 import { DEFAULT_ITEMS_PER_PAGE } from '~/utils/constants'
 import { slugify } from '~/utils/formatters'
@@ -57,8 +58,17 @@ const getDetails = async (productId) => {
       })
     }
     product.types = types
-    delete product['shopTypes']
-    delete product['typeFeature']
+
+    if (product?.comments && product?.comments.length > 0) {
+      product.comments = product?.comments[0].comments
+
+      delete product['shopTypes']
+      delete product['typeFeature']
+
+      const res = await Promise.all(product?.comments?.map(comment => buyerModel.findOneById(comment.buyerId)))
+
+      product.comments = product.comments.map((comment, index) => ({ ...comment, buyerName: res[index]?.username }))
+    }
 
     return product
   } catch (error) { throw error }
