@@ -4,7 +4,6 @@ import unidecode from 'unidecode'
 import { GET_DB } from '~/config/mongodb'
 import { pagingSkipValue } from '~/utils/algorithms'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { productTypeModel } from './productTypeModel'
 
 const PRODUCT_COLLECTION_NAME = 'products'
 const PRODUCT_COLLECTION_SCHEMA = Joi.object({
@@ -22,7 +21,6 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   avatar: Joi.string(),
   rating: Joi.number().default(0),
   sold: Joi.number().default(0),
-  typeCount: Joi.number().default(1),
   score: Joi.number().default(0),
   slug: Joi.string().required().trim().strict(),
   typeFeature: Joi.array().items({
@@ -105,19 +103,8 @@ const findOneById = async (id) => {
 
 const getDetails = async (productId) => {
   try {
-    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate([
-      { $match: { _id: new ObjectId(productId) } },
-      {
-        $lookup: {
-          from: productTypeModel.PRODUCT_TYPE_COLLECTION_NAME,
-          localField: '_id',
-          foreignField: 'productId',
-          as: 'productTypes',
-          pipeline: [{ $project: { 'shopId': 0, 'productId': 0, '_id': 0 } }]
-        }
-      }
-    ]).toArray()
-    return result[0] || []
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOne({ _id: new ObjectId(productId) })
+    return result
   } catch (error) { throw new Error(error) }
 }
 

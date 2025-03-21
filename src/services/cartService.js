@@ -3,7 +3,6 @@ import { StatusCodes } from 'http-status-codes'
 import { ObjectId } from 'mongodb'
 import { cartModel } from '~/models/cartModel'
 import { productModel } from '~/models/productModel'
-import { productTypeModel } from '~/models/productTypeModel'
 import ApiError from '~/utils/ApiError'
 
 const getCart = async (buyerId) => {
@@ -12,10 +11,12 @@ const getCart = async (buyerId) => {
     const fullProducts = []
     for (let item of result.itemList) {
       const productDetail = await productModel.findOneById(item.productId)
-      const productType = await productTypeModel.findOneByProductId(item.productId)
+      const type = productDetail.typeFeature.find(type => type.typeId.toString() === item.typeId.toString())
+      delete productDetail['shopTypes']
+      delete productDetail['typeFeature']
       fullProducts.push({
         ...productDetail,
-        type: productType?.types?.find(type => type.typeId.toString() === item.typeId.toString())
+        type: type
       })
     }
     return { ...result, fullProducts }
@@ -45,7 +46,19 @@ const addToCart = async (buyerId, reqBody) => {
   } catch (error) { throw error }
 }
 
+const update = async (buyerId, reqBody) => {
+  try {
+    const existCart = await cartModel.findOneByBuyerId(buyerId)
+
+    if (!existCart) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Giỏ hàng không hợp lệ')
+
+    const result = await cartModel.updateQuantity(buyerId, reqBody)
+    return result
+  } catch (error) { throw error }
+}
+
 export const cartService = {
   getCart,
-  addToCart
+  addToCart,
+  update
 }

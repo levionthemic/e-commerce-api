@@ -1,9 +1,7 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
-import { productModel } from './productModel'
 import { GET_DB } from '~/config/mongodb'
-import { productTypeModel } from '~/models/productTypeModel'
 
 const CART_COLLECTION_NAME = 'carts'
 const CART_COLLECTION_SCHEMA = Joi.object({
@@ -58,11 +56,27 @@ const updateItemLists = async (buyerId, itemList) => {
   } catch (error) { throw new Error(error) }
 }
 
+const updateQuantity = async (buyerId, reqBody) => {
+  try {
+    const result = await GET_DB().collection(CART_COLLECTION_NAME).findOneAndUpdate(
+      { $and: [
+        { buyerId: new ObjectId(buyerId) },
+        { 'itemList.productId': new ObjectId(reqBody.productId) },
+        { 'itemList.typeId': new ObjectId(reqBody.typeId) }
+      ] },
+      { $set: { 'itemList.$.quantity': reqBody.quantity } },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const cartModel = {
   CART_COLLECTION_NAME,
   CART_COLLECTION_SCHEMA,
   getCart,
   findOneByBuyerId,
   updateItemLists,
-  createNew
+  createNew,
+  updateQuantity
 }

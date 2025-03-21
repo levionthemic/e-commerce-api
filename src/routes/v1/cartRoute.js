@@ -10,4 +10,7 @@ Router.route('/')
 Router.route('/add')
   .post(cartValidation.addToCart, cartController.addToCart)
 
+Router.route('/update')
+  .put(cartValidation.update, cartController.update)
+
 export const cartRoute = Router
