@@ -9,6 +9,7 @@ cloudinaryV2.config({
   api_secret: env.CLOUDINARY_API_SECRET // Click 'View API Keys' above to copy your API secret
 })
 
+
 const streamUpload = (fileBuffer, folderName) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinaryV2.uploader.upload_stream({ folder : folderName }, (err, result) => {
@@ -20,4 +21,14 @@ const streamUpload = (fileBuffer, folderName) => {
   })
 }
 
-export const CloudinaryProvider = { streamUpload }
+const upload = async (fileBuffer, folderName) => {
+  const uploadResult = await streamUpload(fileBuffer, folderName)
+  const optimizeUrl = cloudinaryV2.url(uploadResult.public_id, {
+    fetch_format: 'auto',
+    quality: 'auto'
+  })
+  return optimizeUrl
+}
+
+
+export const CloudinaryProvider = { upload }

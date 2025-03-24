@@ -14,7 +14,7 @@ export const GENDER = {
   OTHER: 'other'
 }
 
-export const STATUS = {
+export const ACCOUNT_STATUS = {
   ACTIVE: 'active',
   INACTIVE: 'inactive'
 }

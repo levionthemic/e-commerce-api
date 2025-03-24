@@ -1,7 +1,7 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { GENDER, STATUS } from '~/utils/constants'
+import { ACCOUNT_STATUS, GENDER } from '~/utils/constants'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PHONE_RULE, PHONE_RULE_MESSAGE } from '~/utils/validators'
 
 const BUYER_COLLECTION_NAME = 'buyers'
@@ -13,7 +13,7 @@ const BUYER_COLLECTION_SCHEMA = Joi.object({
   phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
   birthdate: Joi.date(),
   gender: Joi.string().valid(...Object.values(GENDER)),
-  status: Joi.string().valid(...Object.values(STATUS)).default('active'),
+  status: Joi.string().valid(...Object.values(ACCOUNT_STATUS)).default(ACCOUNT_STATUS.ACTIVE),
   address: Joi.array().items({
     province: Joi.string().required().trim().strict(),
     district: Joi.string().required().trim().strict(),
