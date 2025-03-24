@@ -1,8 +1,8 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { GENDER } from '~/utils/constants'
-import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PHONE_RULE, PHONE_RULE_MESSAGE } from '~/utils/validators'
+import { ACCOUNT_STATUS } from '~/utils/constants'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators'
 
 
 const SELLER_COLLECTION_NAME = 'sellers'
@@ -14,7 +14,7 @@ const SELLER_COLLECTION_SCHEMA = Joi.object({
   coverPhoto: Joi.string(),
   score: Joi.number().default(0),
   avatar: Joi.string(),
-
+  status: Joi.string().valid(...Object.values(ACCOUNT_STATUS)).default(ACCOUNT_STATUS.ACTIVE),
   isVerified: Joi.boolean().required().default(false),
   verifyToken: Joi.string().required().default(null),
 
