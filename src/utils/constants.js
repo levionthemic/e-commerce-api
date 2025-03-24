@@ -14,6 +14,11 @@ export const GENDER = {
   OTHER: 'other'
 }
 
+export const STATUS = {
+  ACTIVE: 'active',
+  INACTIVE: 'inactive'
+}
+
 export const ACCOUNT_ROLE = {
   BUYER: 'buyer',
   SELLER: 'seller',
