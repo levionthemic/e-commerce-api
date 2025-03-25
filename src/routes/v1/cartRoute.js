@@ -12,5 +12,5 @@ Router.route('/add')
 
 Router.route('/update')
   .put(cartValidation.update, cartController.update)
-
+  .delete(cartController.deleteItem)
 export const cartRoute = Router

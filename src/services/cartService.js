@@ -57,8 +57,20 @@ const update = async (buyerId, reqBody) => {
   } catch (error) { throw error }
 }
 
+const deleteItem = async (buyerId, reqBody) => {
+  try {
+    const existCart = await cartModel.findOneByBuyerId(buyerId)
+
+    if (!existCart) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Giỏ hàng không hợp lệ')
+
+    const result = await cartModel.deleteItem(buyerId, reqBody)
+    return result
+  } catch (error) { throw error }
+}
+
 export const cartService = {
   getCart,
   addToCart,
-  update
+  update,
+  deleteItem
 }
