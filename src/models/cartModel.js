@@ -71,6 +71,24 @@ const updateQuantity = async (buyerId, reqBody) => {
   } catch (error) { throw new Error(error) }
 }
 
+const deleteItem = async (buyerId, reqBody) => {
+  try {
+    const result = await GET_DB().collection(CART_COLLECTION_NAME).findOneAndUpdate(
+      { buyerId: new ObjectId(buyerId) },
+      {
+        $pull: {
+          itemList: {
+            productId: new ObjectId(reqBody.productId),
+            typeId: new ObjectId(reqBody.typeId)
+          }
+        }
+      },
+      { returnDocument: 'after' }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const cartModel = {
   CART_COLLECTION_NAME,
   CART_COLLECTION_SCHEMA,
@@ -78,5 +96,6 @@ export const cartModel = {
   findOneByBuyerId,
   updateItemLists,
   createNew,
-  updateQuantity
+  updateQuantity,
+  deleteItem
 }
