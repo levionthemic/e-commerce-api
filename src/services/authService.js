@@ -50,7 +50,7 @@ const login = async (reqBody) => {
       env.REFRESH_TOKEN_LIFE
     )
 
-    return { ...pickUser(existUser), accessToken, refreshToken }
+    return { ...pickUser(existUser), accessToken, refreshToken, role: reqBody.role }
   } catch (error) { throw error }
 }
 
@@ -68,6 +68,10 @@ const loginWithGoogle = async (reqBody) => {
     const existUserFromSeller = await sellerModel.findOneByEmail(user.email)
 
     const existUser = existUserFromBuyer || existUserFromSeller
+
+    let role = ''
+    if (existUserFromBuyer) role = ACCOUNT_ROLE.BUYER
+    if (existUserFromSeller) role = ACCOUNT_ROLE.SELLER
 
     if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản của bạn không tồn tại!')
     if (!existUser.isVerified) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra và xác thực trong email của bạn!')
@@ -89,7 +93,7 @@ const loginWithGoogle = async (reqBody) => {
       env.REFRESH_TOKEN_LIFE
     )
 
-    return { ...pickUser(existUser), accessToken, refreshToken }
+    return { ...pickUser(existUser), accessToken, refreshToken, role }
   } catch (error) { throw error }
 }
 

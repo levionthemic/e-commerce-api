@@ -15,6 +15,11 @@ const SELLER_COLLECTION_SCHEMA = Joi.object({
   score: Joi.number().default(0),
   avatar: Joi.string(),
   status: Joi.string().valid(...Object.values(ACCOUNT_STATUS)).default(ACCOUNT_STATUS.ACTIVE),
+  foundedDate: Joi.date(),
+  shortDescription: Joi.string(),
+  description: Joi.string(),
+  socialNetworks: Joi.array().items(Joi.string()),
+
   isVerified: Joi.boolean().required().default(false),
   verifyToken: Joi.string().required().default(null),
 
