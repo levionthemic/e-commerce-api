@@ -15,8 +15,8 @@ const BUYER_COLLECTION_SCHEMA = Joi.object({
   gender: Joi.string().valid(...Object.values(GENDER)),
   status: Joi.string().valid(...Object.values(ACCOUNT_STATUS)).default(ACCOUNT_STATUS.ACTIVE),
   address: Joi.array().items({
-    province: Joi.string().required().trim().strict(),
-    district: Joi.string().required().trim().strict(),
+    province: Joi.number().required(),
+    district: Joi.number().required(),
     ward: Joi.string().required().trim().strict(),
     detail: Joi.string().required().trim().strict()
   }),
