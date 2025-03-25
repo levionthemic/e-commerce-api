@@ -10,10 +10,10 @@ const updateProfile = async (req, res, next) => {
     name: Joi.string().trim().strict(),
     phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
     birthdate: Joi.date(),
-    gender: Joi.string().required().valid(...Object.values(GENDER)),
+    gender: Joi.string().valid(...Object.values(GENDER)),
     address: Joi.array().items({
-      province: Joi.string().required().trim().strict(),
-      district: Joi.string().required().trim().strict(),
+      province: Joi.number().required(),
+      district: Joi.number().required(),
       ward: Joi.string().required().trim().strict(),
       detail: Joi.string().required().trim().strict()
     }),
