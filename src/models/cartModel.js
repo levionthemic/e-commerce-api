@@ -60,7 +60,9 @@ const updateQuantity = async (buyerId, reqBody) => {
   try {
     const result = await GET_DB().collection(CART_COLLECTION_NAME).findOneAndUpdate(
       { $and: [
-        { buyerId: new ObjectId(buyerId) }
+        { buyerId: new ObjectId(buyerId) },
+        { 'itemList.productId': new ObjectId(reqBody.productId) },
+        { 'itemList.typeId': new ObjectId(reqBody.typeId) }
       ] },
       { $set: { 'itemList.$.quantity': reqBody.quantity } },
       { returnDocument: 'after' }
