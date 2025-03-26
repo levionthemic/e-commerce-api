@@ -8,6 +8,9 @@ Router.route('/')
   .get(productController.getProducts)
   .post(productValidation.createProduct)
 
+Router.route('/filter')
+  .get(productController.getProductsWithFilters)
+
 // Router.route('/search')
 //   .get(productController.searchProducts)
 
