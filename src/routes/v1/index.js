@@ -6,6 +6,7 @@ import { authRoute } from './authRoute'
 import { authMiddleware } from '~/middlewares/authMiddleware'
 import { cartRoute } from './cartRoute'
 import { buyerRoute } from './buyerRoute'
+import { reviewRoute } from './reviewRoute'
 
 const Router = express.Router()
 
@@ -21,6 +22,7 @@ Router.use('/categories', authMiddleware.isAuthorized, categoryRoute)
 Router.use('/auth', authRoute)
 Router.use('/cart', authMiddleware.isAuthorized, cartRoute)
 Router.use('/buyer', authMiddleware.isAuthorized, buyerRoute)
+Router.use('/review', authMiddleware.isAuthorized, reviewRoute)
 
 /* Seller APIs */
 

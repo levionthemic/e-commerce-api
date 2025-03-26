@@ -42,6 +42,8 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
   _deleted: Joi.boolean().default(false)
 })
 
+const INVALID_UPDATE_FIELDS = ['sellerId']
+
 const getProducts = async (page, itemsPerPage, queryFilters) => {
   try {
     const queryConditions = [{ _deleted: false }]
@@ -118,11 +120,29 @@ const getDetails = async (productId) => {
 }
 
 
+const update = async (productId, productData) => {
+  try {
+    Object.keys(productData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete productData[fieldName]
+      }
+    })
+
+    const updatedProduct = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(productId) },
+      { $set: productData },
+      { returnDocument: 'after' }
+    )
+    return updatedProduct
+  } catch (error) { throw new Error(error) }
+}
+
 export const productModel = {
   PRODUCT_COLLECTION_NAME,
   PRODUCT_COLLECTION_SCHEMA,
   getProducts,
   createProduct,
   getDetails,
-  findOneById
+  findOneById,
+  update
 }
