@@ -1,7 +1,8 @@
 import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
-import { ACCOUNT_STATUS } from '~/utils/constants'
+import { ACCOUNT_ROLE, ACCOUNT_STATUS } from '~/utils/constants'
+import { pickUser } from '~/utils/formatters'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE } from '~/utils/validators'
 
 
@@ -82,7 +83,7 @@ const update = async (userId, userData) => {
       { $set: userData },
       { returnDocument: 'after' }
     )
-    return updatedUser
+    return { ...pickUser(updatedUser), role: ACCOUNT_ROLE.SELLER }
   } catch (error) { throw new Error(error) }
 }
 
