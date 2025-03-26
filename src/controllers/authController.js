@@ -27,6 +27,9 @@ const login = async (req, res, next) => {
       maxAge: ms('14 days')
     })
 
+    delete result['accessToken']
+    delete result['refreshToken']
+
     res.status(StatusCodes.OK).json(result)
   } catch (error) { next(error) }
 }
