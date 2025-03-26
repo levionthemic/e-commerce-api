@@ -11,6 +11,16 @@ const getProducts = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getProductsWithFilters = async (req, res, next) => {
+  try {
+    const { page, itemsPerPage, q } = req.query
+    const queryFilters = q
+    const listProducts = await productService.getProducts(page, itemsPerPage, queryFilters, true)
+
+    res.status(StatusCodes.OK).json(listProducts)
+  } catch (error) { next(error) }
+}
+
 const createProduct = async (req, res, next) => {
   try {
     const createdProduct = await productService.createProduct({ ...req.body })
@@ -40,6 +50,7 @@ const update = async (req, res, next) => {
 
 export const productController = {
   getProducts,
+  getProductsWithFilters,
   createProduct,
   getDetails,
   update

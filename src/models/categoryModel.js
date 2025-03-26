@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
@@ -26,8 +27,16 @@ const getListCategories = async () => {
   }
 }
 
+const findOneById = async (categoryId) => {
+  try {
+    const category = await GET_DB().collection(CATEGORY_COLLECTION_NAME).findOne({ _id: new ObjectId(categoryId) })
+    return category
+  } catch (error) { throw new Error(error) }
+}
+
 export const categoryModel = {
   CATEGORY_COLLECTION_NAME,
   CATEGORY_COLLECTION_SCHEMA,
-  getListCategories
+  getListCategories,
+  findOneById
 }
