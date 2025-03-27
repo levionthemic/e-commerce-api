@@ -61,6 +61,11 @@ const getProducts = async (page, itemsPerPage, queryFilters) => {
             ]
           })
         }
+        if (key === 'rating') queryConditions.push({ [key]: { $gt: parseInt(queryFilters[key]) - 1 } })
+        if (key === 'minPrice') queryConditions.push({ avgPrice: { $gt: parseInt(queryFilters[key]) } })
+        if (key === 'maxPrice') queryConditions.push({ avgPrice: { $lt: parseInt(queryFilters[key]) } })
+        if (key === 'categoryId') queryConditions.push({ [key]: new ObjectId(queryFilters[key]) })
+        if (key === 'brandId') queryConditions.push({ [key]: new ObjectId(queryFilters[key]) })
       })
     }
 
@@ -81,11 +86,9 @@ const getProducts = async (page, itemsPerPage, queryFilters) => {
       { collation: { locale: 'en' } }
     ).toArray()
 
-    const res = query[0]
-
     return {
-      products: res.queryProducts || [],
-      totalProducts: res.queryTotalProducts[0]?.totalProductsCount || 0
+      products: query[0].queryProducts || [],
+      totalProducts: query[0].queryTotalProducts[0]?.totalProductsCount || 0
     }
   } catch (error) { throw new Error(error) }
 }
