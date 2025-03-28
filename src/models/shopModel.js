@@ -7,7 +7,7 @@ const SHOP_COLLECTION_NAME = 'shops'
 const SHOP_COLLECTION_SCHEMA = Joi.object({
   sellerId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
   phone: Joi.string().required(),
-  shopAddress: Joi.array().items({
+  shopAddress: Joi.object({
     province: Joi.number().required(),
     district: Joi.number().required(),
     ward: Joi.string().required().trim().strict(),

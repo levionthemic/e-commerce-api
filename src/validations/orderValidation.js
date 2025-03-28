@@ -41,10 +41,10 @@ const addOrder = async (req, res, next) => {
     buyerEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
     note: Joi.string(),
     buyerAddress: Joi.object({
-      address: Joi.string().required(),
-      ward: Joi.number().required(),
+      province: Joi.number().required(),
       district: Joi.number().required(),
-      province: Joi.number().required()
+      ward: Joi.string().required().trim().strict(),
+      address: Joi.string().required().trim().strict()
     }).required(),
     shippingFee: Joi.number().required().default(0),
     shippingMethod: Joi.string().required(),

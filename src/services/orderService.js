@@ -2,6 +2,7 @@
 /* eslint-disable no-empty */
 
 import { StatusCodes } from 'http-status-codes'
+import { cartModel } from '~/models/cartModel'
 import { orderModel } from '~/models/orderModel'
 import { productModel } from '~/models/productModel'
 import { shopModel } from '~/models/shopModel'
@@ -45,7 +46,6 @@ const clusterOrder = async (buyerId, reqBody) => {
       const foundShopId = foundShop.shopId
 
 
-
       const shop = await shopModel.findOneById(foundShopId)
       if (!shop) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Shop không hợp lệ')
 
@@ -65,6 +65,7 @@ const clusterOrder = async (buyerId, reqBody) => {
           orgPrice: finalPrice*quantity,
           buyerPhone: reqBody.buyerPhone,
           buyerName: reqBody.buyerName,
+          buyerEmail: reqBody.buyerEmail,
           shopAddress: shopAddress,
           buyerAddress: reqBody.buyerAddress,
           itemList: [validItem]
@@ -91,11 +92,14 @@ const addOrder = async (buyerId, reqBody) => {
     const insertedOrder = await orderModel.addOrder(orderData)
 
     let updatedItemList = []
-    itemList.forEach( async (item) => {
+    for ( let item of itemList) {
       const updatedItem = await productModel.increaseStock(item.productId, item.typeId, shopId, -item.quantity)
-
+      await cartModel.deleteItem(buyerId, {
+        productId : item.productId,
+        typeId: item.typeId
+      })
       updatedItemList.push(updatedItem)
-    })
+    }
 
     return { insertedOrder, updatedItemList }
   } catch (error) {

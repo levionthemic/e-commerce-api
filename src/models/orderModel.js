@@ -16,8 +16,8 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
   buyerName: Joi.string().required(),
   buyerEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
   status: Joi.string().default('success'),
-  note: Joi.string(),
-  buyerAddress: Joi.array().items({
+  note: Joi.string().default(''),
+  buyerAddress: Joi.object({
     province: Joi.number().required(),
     district: Joi.number().required(),
     ward: Joi.string().required().trim().strict(),
@@ -35,7 +35,7 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
       avatar: Joi.string(),
       quantity: Joi.number().required()
     }
-  ),
+  ).required(),
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -61,21 +61,24 @@ const findOneById = async (orderId) => {
 
 const addOrder = async (orderData) => {
   try {
-    const validOrderData = validateBeforeAsync(orderData)
+    const validOrderData = await validateBeforeAsync(orderData)
 
     validOrderData.buyerId = new ObjectId(validOrderData.buyerId)
     validOrderData.sellerId = new ObjectId(validOrderData.sellerId)
     validOrderData.shopId = new ObjectId(validOrderData.shopId)
 
-    validOrderData.itemList.forEach((item) => {
-      item.productId = new ObjectId(item.productId)
-      item.typeId = new ObjectId(item.typeId)
+    validOrderData.itemList = validOrderData.itemList.map((item) => {
+      return {
+        ...item,
+        productId : new ObjectId(item.productId),
+        typeId : new ObjectId(item.typeId)
+      }
     })
 
-    const insertedOrderId = await GET_DB().collection(ORDER_COLLECTION_NAME).insertOne(validOrderData).insertedId
-
-    const insertedOrder = await findOneById(insertedOrderId)
-    return insertedOrder
+    const insertedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).insertOne(validOrderData)
+    const insertedOrderId = insertedOrder.insertedId
+    const foundInsertedOrder = await findOneById(insertedOrderId)
+    return foundInsertedOrder
   } catch (error) {
     throw new Error(error)
   }

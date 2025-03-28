@@ -142,8 +142,8 @@ const increaseStock = async (productId, typeId, shopId, quantity) => {
     const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOneAndUpdate(
       { $and: [
         { _id: new ObjectId(productId) },
-        { 'shopTypes.shopId': ObjectId(shopId) },
-        { 'shopTypes.types.typeId': ObjectId(typeId) }
+        { 'shopTypes.shopId': new ObjectId(shopId) },
+        { 'shopTypes.types.typeId': new ObjectId(typeId) }
       ] },
       { $inc: { 'shopTypes.$[shop].types.$[type].stock': quantity } },
       {
