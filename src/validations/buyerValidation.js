@@ -11,11 +11,11 @@ const updateProfile = async (req, res, next) => {
     phone: Joi.string().pattern(PHONE_RULE).message(PHONE_RULE_MESSAGE),
     birthdate: Joi.date(),
     gender: Joi.string().valid(...Object.values(GENDER)),
-    address: Joi.array().items({
+    shopAddress: Joi.array().items({
       province: Joi.number().required(),
       district: Joi.number().required(),
       ward: Joi.string().required().trim().strict(),
-      detail: Joi.string().required().trim().strict()
+      address: Joi.string().required().trim().strict()
     }),
     avatar: Joi.string(),
     status: Joi.string().required().valid(...Object.values(ACCOUNT_STATUS))
