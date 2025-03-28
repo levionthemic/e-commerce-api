@@ -1,3 +1,7 @@
+
+import { StatusCodes } from 'http-status-codes'
+import { orderService } from '~/services/orderService'
+
 /**
  * CÁC BƯỚC TẠO ĐƠN HÀNG
  *
@@ -7,13 +11,29 @@
  * B4: Giảm stock và tăng sold của các sản phẩm tương ứng
  * B5: Gọi API tạo đơn hàng của GHN. Sau đó xử lý data trước khi thêm vào db. Link doc: https://api.ghn.vn/home/docs/detail?id=122
  */
-const addOrder = (req, res, next) => {
+const clusterOrder = async (req, res, next) => {
   try {
-    //
+    const buyerId = req.jwtDecoded._id
+
+    const clusteredOrderList = await orderService.clusterOrder(buyerId, req.body)
+
+    res.status(StatusCodes.OK).json(clusteredOrderList)
   } catch (error) { next(error) }
 }
 
+const addOrder = async (req, res, next) => {
+  try {
+    const buyerId = req.jwtDecoded._id
+
+    const insertedOrder = await orderService.addOrder(buyerId, req.body)
+
+    res.status(StatusCodes.OK).json(insertedOrder)
+  } catch (error) { next(error) }
+}
+
+
 export const orderController = {
-  addOrder
+  addOrder,
+  clusterOrder
 }
 

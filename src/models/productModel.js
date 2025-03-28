@@ -137,6 +137,26 @@ const update = async (productId, productData) => {
   } catch (error) { throw new Error(error) }
 }
 
+const increaseStock = async (productId, typeId, shopId, quantity) => {
+  try {
+    const result = await GET_DB().collection(PRODUCT_COLLECTION_NAME).findOneAndUpdate(
+      { $and: [
+        { _id: new ObjectId(productId) },
+        { 'shopTypes.shopId': ObjectId(shopId) },
+        { 'shopTypes.types.typeId': ObjectId(typeId) }
+      ] },
+      { $inc: { 'shopTypes.$[shop].types.$[type].stock': quantity } },
+      {
+        arrayFilters: [
+          { 'shop.shopId': new ObjectId(shopId) },
+          { 'type.typeId': new ObjectId(typeId) }
+        ]
+      }
+    )
+    return result
+  } catch (error) { throw new Error(error) }
+}
+
 export const productModel = {
   PRODUCT_COLLECTION_NAME,
   PRODUCT_COLLECTION_SCHEMA,
@@ -144,5 +164,6 @@ export const productModel = {
   createProduct,
   getDetails,
   findOneById,
-  update
+  update,
+  increaseStock
 }
