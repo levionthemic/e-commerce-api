@@ -63,11 +63,7 @@ const clusterOrder = async (buyerId, reqBody) => {
           sellerId: product.sellerId,
           shopId: foundShopId,
           orgPrice: finalPrice*quantity,
-          buyerPhone: reqBody.buyerPhone,
-          buyerName: reqBody.buyerName,
-          buyerEmail: reqBody.buyerEmail,
           shopAddress: shopAddress,
-          buyerAddress: reqBody.buyerAddress,
           itemList: [validItem]
         }
         clusteredOrderList.push(newClusteredOrder)

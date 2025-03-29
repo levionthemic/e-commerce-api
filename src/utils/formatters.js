@@ -14,5 +14,5 @@ export const slugify = (val) => {
 
 export const pickUser = (user) => {
   if (!user) return {}
-  return pick(user, ['_id', 'email', 'name', 'username', 'avatar', 'phone', 'birthdate', 'gender', 'address', 'status', 'isVerified', 'createdAt', 'updatedAt', 'foundedDate', 'socialNetworks', 'coverPhoto', 'description'])
+  return pick(user, ['_id', 'email', 'name', 'username', 'avatar', 'phone', 'birthdate', 'gender', 'buyerAddress', 'status', 'isVerified', 'createdAt', 'updatedAt', 'foundedDate', 'socialNetworks', 'coverPhoto', 'description'])
 }
