@@ -5,22 +5,13 @@ import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE 
 
 const clusterOrder = async (req, res, next) => {
   const validateCondition = Joi.object({
-    // buyerPhone: Joi.string().required(),
-    // buyerName: Joi.string().required(),
-    // email: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
-    // buyerAddress: Joi.object({
-    //   address: Joi.string().required().trim().strict(),
-    //   ward: Joi.string().required().trim().strict(),
-    //   district: Joi.number().required(),
-    //   province: Joi.number().required()
-    // }).required(),
     itemList: Joi.array().items(
       {
         productId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
         typeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
         quantity: Joi.number().required()
       }
-    )
+    ).required()
   })
 
   try {
