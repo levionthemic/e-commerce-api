@@ -47,7 +47,9 @@ Follow these steps to set up the project on your local machine:
 - Open `http://localhost:8017` in your browser.
 - Register a new account or log in.
 - Browse products, add them to the cart, and proceed with checkout.
-
+- Sample account for buyer: liem.ho2211835@hcmut.edu.vn - htnl832004
+- Sample account for seller: liem.levicoding834124@gmail.com - htnl832004
+  
 ## Contact
 For any inquiries or feedback, feel free to contact us at: ecommerceplatform.pp.204@gmail.com.
 
