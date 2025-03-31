@@ -28,7 +28,11 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
     typeId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
     typeName: Joi.string().required().trim().strict(),
     discount: Joi.number().default(0),
-    price: Joi.number().default(0)
+    price: Joi.number().default(0),
+    _weight: Joi.number(),
+    _length: Joi.number(),
+    _width: Joi.number(),
+    _height: Joi.number()
   }),
   shopTypes: Joi.array().items({
     shopId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
