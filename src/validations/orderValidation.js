@@ -30,7 +30,7 @@ const addOrder = async (req, res, next) => {
     buyerPhone: Joi.string().required(),
     buyerName: Joi.string().required(),
     buyerEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
-    note: Joi.string(),
+    note: Joi.string().allow(''),
     buyerAddress: Joi.object({
       province: Joi.number().required(),
       district: Joi.number().required(),

@@ -16,7 +16,7 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
   buyerName: Joi.string().required(),
   buyerEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
   status: Joi.string().default('success'),
-  note: Joi.string().default(''),
+  note: Joi.string().allow(''),
   buyerAddress: Joi.object({
     province: Joi.number().required(),
     district: Joi.number().required(),
