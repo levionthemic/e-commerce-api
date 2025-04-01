@@ -46,13 +46,12 @@ const clusterOrder = async (buyerId, reqBody) => {
       const shopAddress = shop.shopAddress
 
       let itemQuantityArr = []
-      if (finalPrice*quantity > 50000000) {
-        const maxQuantityPerOrder = Math.floor(50000000 / finalPrice)
-        const count = Math.floor(quantity / maxQuantityPerOrder)
-        for (let i = 0; i < count; i++) itemQuantityArr.push(maxQuantityPerOrder)
-        const lastOrderQuantity = quantity % maxQuantityPerOrder
-        if (lastOrderQuantity > 0) itemQuantityArr.push(lastOrderQuantity)
-      }
+      const maxQuantityPerOrder = Math.floor(50000000 / finalPrice)
+      const count = Math.floor(quantity / maxQuantityPerOrder)
+      for (let i = 0; i < count; i++) itemQuantityArr.push(maxQuantityPerOrder)
+      const lastOrderQuantity = quantity % maxQuantityPerOrder
+      if (lastOrderQuantity > 0) itemQuantityArr.push(lastOrderQuantity)
+
 
       itemQuantityArr.forEach((quantity) => {
         let foundClusteredOrder = clusteredOrderList.find((order) => order.shopId.toString() === foundShopId.toString() && order.orgPrice + finalPrice*quantity <= 50000000)
