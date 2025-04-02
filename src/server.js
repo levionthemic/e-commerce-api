@@ -9,7 +9,8 @@ import { errorHandlingMiddleware } from '~/middlewares/errorHandlingMiddleware'
 import { corsOptions } from './config/cors'
 import cookieParser from 'cookie-parser'
 import swaggerDocs from '~/docs/swagger'
-
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 
 const START_SERVER = () => {
   const app = express()
@@ -30,12 +31,28 @@ const START_SERVER = () => {
   // Middleware error handling
   app.use(errorHandlingMiddleware)
 
+  const httpServer = createServer(app)
+
+  const io = new Server(httpServer, {
+    cors: corsOptions
+  })
+
+  io.on('connection', (socket) => {
+    socket.on('FE_START_REVIEW', (data) => {
+      socket.broadcast.emit('BE_START_REVIEW', data)
+    })
+    socket.on('FE_STOP_REVIEW', (data) => {
+      socket.broadcast.emit('BE_STOP_REVIEW', data)
+    })
+  })
+
+
   if (env.BUILD_MODE === 'production') {
-    app.listen(process.env.PORT, process.env.HOST, () => {
+    httpServer.listen(process.env.PORT, process.env.HOST, () => {
       console.log(`Hello Levion, I am running on Render at port:${ process.env.PORT }`)
     })
   } else {
-    app.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
+    httpServer.listen(env.LOCAL_DEV_APP_PORT, env.LOCAL_DEV_APP_HOST, () => {
       console.log(`Hello Levion, I am running at ${ env.LOCAL_DEV_APP_HOST }:${ env.LOCAL_DEV_APP_PORT }`)
     })
     swaggerDocs(app)
