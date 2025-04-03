@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes'
+import { buyerModel } from '~/models/buyerModel'
 import { productModel } from '~/models/productModel'
 import { reviewModel } from '~/models/reviewModel'
 import ApiError from '~/utils/ApiError'
@@ -16,6 +17,11 @@ const addComment = async (buyerId, reqBody) => {
 
 
     const review = await reviewModel.addComment(productId, commentData)
+    for (let comment of review.comments) {
+      const buyer = await buyerModel.findOneById(review.comments[0].buyerId.toString())
+      comment.buyerName = buyer.username
+    }
+
 
     const reviewList = await reviewModel.findAllByProductId(productId)
 

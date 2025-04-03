@@ -7,6 +7,8 @@ const addComment = async (req, res, next) => {
     const buyerId = req.jwtDecoded._id
     const { review, updatedProduct } = await reviewService.addComment(buyerId, req.body)
 
+    req.io.to(updatedProduct._id.toString()).emit('BE_NEW_REVIEW', { review, updatedProduct })
+
     res.status(StatusCodes.OK).json({ review, updatedProduct })
   } catch (error) { next(error) }
 }
