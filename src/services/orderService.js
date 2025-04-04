@@ -224,7 +224,15 @@ const addOrder = async (buyerId, reqBody) => {
   }
 }
 
+const getAllOrdersForSeller = async (sellerId) => {
+  try {
+    const result = await orderModel.getAllOrdersForSeller(sellerId)
+    return result
+  } catch (error) { throw error }
+}
+
 export const orderService = {
   addOrder,
-  clusterOrder
+  clusterOrder,
+  getAllOrdersForSeller
 }

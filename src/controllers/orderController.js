@@ -31,9 +31,20 @@ const addOrder = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getAllOrdersForSeller = async (req, res, next) => {
+  try {
+    const sellerId = req.jwtDecoded._id
+
+    const listOrders = await orderService.getAllOrdersForSeller(sellerId)
+
+    res.status(StatusCodes.OK).json(listOrders)
+  } catch (error) { next(error) }
+}
+
 
 export const orderController = {
   addOrder,
-  clusterOrder
+  clusterOrder,
+  getAllOrdersForSeller
 }
 

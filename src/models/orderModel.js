@@ -85,9 +85,17 @@ const addOrder = async (orderData) => {
 
 }
 
+const getAllOrdersForSeller = async (sellerId) => {
+  try {
+    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ sellerId: new ObjectId(sellerId ) } ).toArray()
+    return result || []
+  } catch (error) { throw new Error(error) }
+}
+
 export const orderModel = {
   ORDER_COLLECTION_NAME,
   ORDER_COLLECTION_SCHEMA,
   addOrder,
-  findOneById
+  findOneById,
+  getAllOrdersForSeller
 }
