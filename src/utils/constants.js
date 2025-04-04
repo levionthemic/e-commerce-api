@@ -9,7 +9,7 @@ export const WEBSITE_DOMAIN = (env.BUILD_MODE === 'dev') ? env.WEBSITE_DOMAIN_DE
 
 export const DEFAULT_ITEMS_PER_PAGE = 40
 
-export const MAX_COMMENTS_PER_PAGE = 20
+export const MAX_COMMENTS_PER_PAGE = 4
 
 
 export const GENDER = {

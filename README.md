@@ -29,11 +29,11 @@ Follow these steps to set up the project on your local machine:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/levionthemic/e-commerce-web.git
+   git clone https://github.com/TaikiInomata/e-commerce-api.git
    ```
 2. **Install dependencies**:
    ```bash
-   cd e-commerce-web
+   cd e-commerce-api
    yarn
    ```
 3. **Set up environment variables**:
@@ -49,6 +49,7 @@ Follow these steps to set up the project on your local machine:
 - Browse products, add them to the cart, and proceed with checkout.
 - Sample account for buyer: liem.ho2211835@hcmut.edu.vn - htnl832004
 - Sample account for seller: liem.levicoding834124@gmail.com - htnl832004
+
 
 ## Contact
 For any inquiries or feedback, feel free to contact us at: ecommerceplatform.pp.204@gmail.com.

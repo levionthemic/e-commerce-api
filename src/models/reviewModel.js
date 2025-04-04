@@ -28,6 +28,19 @@ const validateBeforeAsync = async (data) => {
   return await REVIEW_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
 
+const validateReviewData = async (commentData) => {
+  const schema = Joi.object({
+    buyerId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    rating: Joi.number().required(),
+    content: Joi.string(),
+    medias: Joi.array().items(Joi.string()),
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(null),
+    _deleted: Joi.boolean().default(false)
+  })
+  return await schema.validateAsync(commentData, { abortEarly: false })
+}
+
 const findAllByProductId = async (productId) => {
   try {
     const reviewList = await GET_DB().collection(REVIEW_COLLECTION_NAME).find(
@@ -51,10 +64,12 @@ const addComment = async (productId, commentData) => {
       })
     // Nếu tìm thấy doc với count < 20, thêm comment vào đó
     if (currentReviewDoc) {
+      const validCommentData = await validateReviewData(commentData)
+      validCommentData.buyerId = new ObjectId(validCommentData.buyerId)
       const result = await GET_DB().collection(REVIEW_COLLECTION_NAME).findOneAndUpdate(
         { _id: currentReviewDoc._id },
         {
-          $push: { comments: commentData },
+          $push: { comments: validCommentData },
           $inc: { count: 1 }
         },
         { returnDocument: 'after' }

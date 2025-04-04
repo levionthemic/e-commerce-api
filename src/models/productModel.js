@@ -119,7 +119,7 @@ const getDetails = async (productId) => {
         from: reviewModel.REVIEW_COLLECTION_NAME,
         localField: '_id',
         foreignField: 'productId',
-        as: 'comments'
+        as: 'reviews'
       } }
     ]).toArray()
     return result[0] || null
