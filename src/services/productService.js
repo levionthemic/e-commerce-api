@@ -107,11 +107,16 @@ const getDetails = async (productId) => {
     delete product['brandId']
     delete product['sellerId']
 
-    // Handle comments
-    if (product?.comments && product?.comments.length > 0) {
-      product.comments = product?.comments[0].comments
-      const res = await Promise.all(product?.comments?.map(comment => buyerModel.findOneById(comment.buyerId)))
-      product.comments = product.comments.map((comment, index) => ({ ...comment, buyerName: res[index]?.username }))
+    // Handle reviews
+    if (product?.reviews && product?.reviews.length > 0) {
+      let result = []
+      for (let reviews of product.reviews) {
+        const comments = reviews.comments
+        const res = await Promise.all(comments?.map(comment => buyerModel.findOneById(comment.buyerId)))
+        reviews.comments = comments.map((comment, index) => ({ ...comment, buyerName: res[index]?.username, buyerAvatar: res[index]?.avatar }))
+        result.push(reviews)
+      }
+      product.reviews = result
     }
 
     return product

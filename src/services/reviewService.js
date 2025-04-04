@@ -16,14 +16,10 @@ const addComment = async (buyerId, reqBody) => {
     const commentData = { ...reqBody, buyerId }
 
 
-    const review = await reviewModel.addComment(productId, commentData)
-    for (let comment of review.comments) {
-      const buyer = await buyerModel.findOneById(review.comments[0].buyerId.toString())
-      comment.buyerName = buyer.username
-    }
+    await reviewModel.addComment(productId, commentData)
 
 
-    const reviewList = await reviewModel.findAllByProductId(productId)
+    let reviewList = await reviewModel.findAllByProductId(productId)
 
     let totalRating = 0
     let totalComments = 0
@@ -41,7 +37,17 @@ const addComment = async (buyerId, reqBody) => {
 
     const updatedProduct = await productModel.update(productId, productData)
 
-    return { review, updatedProduct }
+
+    let result = []
+    for (let reviews of reviewList) {
+      const comments = reviews.comments
+      const res = await Promise.all(comments?.map(comment => buyerModel.findOneById(comment.buyerId)))
+      reviews.comments = comments.map((comment, index) => ({ ...comment, buyerName: res[index]?.username, buyerAvatar: res[index]?.avatar }))
+      result.push(reviews)
+    }
+    reviewList = result
+
+    return { reviewList, updatedProduct }
   } catch (error) { throw error }
 }
 
