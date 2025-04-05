@@ -2,14 +2,18 @@
 /* eslint-disable no-empty */
 
 import { StatusCodes } from 'http-status-codes'
+import { createGHNOrder } from '~/apis'
 // import { createGHNOrder } from '~/apis'
 import { cartModel } from '~/models/cartModel'
 import { orderModel } from '~/models/orderModel'
 import { productModel } from '~/models/productModel'
+import { sellerModel } from '~/models/sellerModel'
 // import { sellerModel } from '~/models/sellerModel'
 import { shopModel } from '~/models/shopModel'
+import { GHNProvider } from '~/providers/GHNProvider'
 // import { GHNProvider } from '~/providers/GHNProvider'
 import ApiError from '~/utils/ApiError'
+import { ORDER_STATUS } from '~/utils/constants'
 
 const clusterOrder = async (buyerId, reqBody) => {
   try {
@@ -109,115 +113,6 @@ const addOrder = async (buyerId, reqBody) => {
       updatedItemList.push(updatedItem)
     }
 
-    // --------------------Xử lí API Create Order GHN---------------------------
-    // const { sellerId, shopId, finalPrice, buyerPhone, buyerName, note, buyerAddress, shippingFee, itemList } = reqBody
-    // const seller = await sellerModel.findOneById(sellerId)
-    // const sellerName = seller.name
-
-    // // Xử lí thông tin shop
-    // const shop = await shopModel.findOneById(shopId)
-    // const shopAddress = shop.shopAddress
-    // const shopPhone = shop.phone
-
-
-    // // Thông tin chưa được xử lí
-    // let insuranceValue = 0
-    // let coupon = ''
-    // let content = ''
-    // let paymentTypeId = 2
-    // let requiredNote = 'KHONGCHOXEMHANG'
-
-    // // Xử lí thông số đơn hàng
-    // const totalWeight = itemList.reduce((sum, item) => sum + item._weight, 0)
-    // const orderLength = Math.max(itemList.map(item => item._length))
-    // const orderWidth = Math.max(itemList.map(item => item._width))
-    // const orderHeight = itemList.reduce((sum, item) => sum + item._height, 0)
-
-    // let GHNdata
-    // if (totalWeight > 50000 || orderLength > 200 || orderWidth > 200 || orderHeight > 200) {
-    //   // Hàng nặng
-    //   const serviceTypeId = 5
-    //   // Xử lí itemList
-    //   const Items = itemList.map((item) => {
-    //     return {
-    //       name: `${item.productName} - ${item.typeName}`,
-    //       code: item.productId,
-    //       quantity: item.quantity,
-    //       price: item.price,
-    //       length: item._length,
-    //       weight: item._weight,
-    //       width: item._width,
-    //       height: item._height
-    //     }
-    //   })
-    //   GHNdata = {
-    //     from_name: sellerName,
-    //     from_phone: shopPhone,
-    //     from_address: shopAddress.address,
-    //     from_ward_name: shopAddress.ward,
-    //     from_district_name: shopAddress.district,
-    //     from_province_name: shopAddress.province,
-    //     to_name: buyerName,
-    //     to_phone: buyerPhone,
-    //     to_address: buyerAddress.address,
-    //     to_ward_name: buyerAddress.ward,
-    //     to_district_name: buyerAddress.district,
-    //     to_province_name: buyerAddress.province,
-    //     return_phone: shopPhone,
-    //     return_address: shopAddress.address,
-    //     return_district_name: shopAddress.district,
-    //     return_ward_name: shopAddress.ward,
-    //     return_province_name: shopAddress.province,
-    //     cod_amount: finalPrice - shippingFee,
-    //     content: content,
-    //     insurance_value: insuranceValue,
-    //     coupon: coupon,
-    //     service_type_id: serviceTypeId,
-    //     payment_type_id: paymentTypeId,
-    //     note : note,
-    //     required_note : requiredNote,
-    //     Items: Items
-    //   }
-    // } else {
-    //   // Hàng nhẹ
-    //   const serviceTypeId = 2
-    //   GHNdata = {
-    //     from_name: sellerName,
-    //     from_phone: shopPhone,
-    //     from_address: shopAddress.address,
-    //     from_ward_name: shopAddress.ward,
-    //     from_district_name: shopAddress.district,
-    //     from_province_name: shopAddress.province,
-    //     to_name: buyerName,
-    //     to_phone: buyerPhone,
-    //     to_address: buyerAddress.address,
-    //     to_ward_name: buyerAddress.ward,
-    //     to_district_name: buyerAddress.district,
-    //     to_province_name: buyerAddress.province,
-    //     return_phone: shopPhone,
-    //     return_address: shopAddress.address,
-    //     return_district_name: shopAddress.district,
-    //     return_ward_name: shopAddress.ward,
-    //     return_province_name: shopAddress.province,
-    //     cod_amount: finalPrice - shippingFee,
-    //     content: content,
-    //     weight: totalWeight,
-    //     length: orderLength,
-    //     width: orderWidth,
-    //     height: orderHeight,
-    //     insurance_value: insuranceValue,
-    //     coupon: coupon,
-    //     service_type_id: serviceTypeId,
-    //     payment_type_id: paymentTypeId,
-    //     note : note,
-    //     required_note : requiredNote
-    //   }
-    // }
-    // const validGHNdata = await GHNProvider.GHN_ORDER_SCHEMA.validateAsync(GHNdata, { abortEarly: false })
-
-    // const createdGHNOrder = await createGHNOrder(validGHNdata)
-
-
     return { insertedOrder, updatedItemList }
   } catch (error) {
     throw error
@@ -242,6 +137,119 @@ const updateOrderStatus = async (reqBody) => {
   try {
     const { orderId, status } = reqBody
     const updatedOrder = await orderModel.updateOrderStatus(orderId, status)
+
+    if (status === ORDER_STATUS.SHIPPING) {
+      // --------------------Xử lí API Create Order GHN---------------------------
+      const order = await orderModel.findOneById(orderId)
+      if (!order) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Đơn hàng không hợp lệ')
+      const { sellerId, shopId, finalPrice, buyerPhone, buyerName, note, buyerAddress, shippingFee, itemList } = order
+      const seller = await sellerModel.findOneById(sellerId)
+      const sellerName = seller.name
+
+      // Xử lí thông tin shop
+      const shop = await shopModel.findOneById(shopId)
+      const shopAddress = shop.shopAddress
+      const shopPhone = shop.phone
+
+
+      // Thông tin chưa được xử lí
+      let insuranceValue = 0
+      let coupon = ''
+      let content = ''
+      let paymentTypeId = 2
+      let requiredNote = 'KHONGCHOXEMHANG'
+
+      // Xử lí thông số đơn hàng
+      const totalWeight = itemList.reduce((sum, item) => sum + item._weight, 0)
+      const orderLength = Math.max(itemList.map(item => item._length))
+      const orderWidth = Math.max(itemList.map(item => item._width))
+      const orderHeight = itemList.reduce((sum, item) => sum + item._height, 0)
+
+      let GHNdata
+      if (totalWeight > 50000 || orderLength > 200 || orderWidth > 200 || orderHeight > 200) {
+        // Hàng nặng
+        const serviceTypeId = 5
+        // Xử lí itemList
+        const Items = itemList.map((item) => {
+          return {
+            name: `${item.productName} - ${item.typeName}`,
+            code: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+            length: item._length,
+            weight: item._weight,
+            width: item._width,
+            height: item._height
+          }
+        })
+        GHNdata = {
+          from_name: sellerName,
+          from_phone: shopPhone,
+          from_address: shopAddress.address,
+          from_ward_name: shopAddress.ward,
+          from_district_name: shopAddress.district,
+          from_province_name: shopAddress.province,
+          to_name: buyerName,
+          to_phone: buyerPhone,
+          to_address: buyerAddress.address,
+          to_ward_name: buyerAddress.ward,
+          to_district_name: buyerAddress.district,
+          to_province_name: buyerAddress.province,
+          return_phone: shopPhone,
+          return_address: shopAddress.address,
+          return_district_name: shopAddress.district,
+          return_ward_name: shopAddress.ward,
+          return_province_name: shopAddress.province,
+          cod_amount: finalPrice - shippingFee,
+          content: content,
+          insurance_value: insuranceValue,
+          coupon: coupon,
+          service_type_id: serviceTypeId,
+          payment_type_id: paymentTypeId,
+          note: note,
+          required_note: requiredNote,
+          Items: Items
+        }
+      } else {
+        // Hàng nhẹ
+        const serviceTypeId = 2
+        GHNdata = {
+          from_name: sellerName,
+          from_phone: shopPhone,
+          from_address: shopAddress.address,
+          from_ward_name: shopAddress.ward,
+          from_district_name: shopAddress.district,
+          from_province_name: shopAddress.province,
+          to_name: buyerName,
+          to_phone: buyerPhone,
+          to_address: buyerAddress.address,
+          to_ward_name: buyerAddress.ward,
+          to_district_name: buyerAddress.district,
+          to_province_name: buyerAddress.province,
+          return_phone: shopPhone,
+          return_address: shopAddress.address,
+          return_district_name: shopAddress.district,
+          return_ward_name: shopAddress.ward,
+          return_province_name: shopAddress.province,
+          cod_amount: finalPrice - shippingFee,
+          content: content,
+          weight: totalWeight,
+          length: orderLength,
+          width: orderWidth,
+          height: orderHeight,
+          insurance_value: insuranceValue,
+          coupon: coupon,
+          service_type_id: serviceTypeId,
+          payment_type_id: paymentTypeId,
+          note: note,
+          required_note: requiredNote
+        }
+      }
+      const validGHNdata = await GHNProvider.GHN_ORDER_SCHEMA.validateAsync(GHNdata, { abortEarly: false })
+
+      const createdGHNOrder = await createGHNOrder(validGHNdata)
+      return { updatedOrder, createdGHNOrder }
+    }
 
     return updatedOrder
   } catch (error) { throw error }
