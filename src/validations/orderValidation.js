@@ -1,7 +1,8 @@
 import { StatusCodes } from 'http-status-codes'
 import Joi from 'joi'
 import ApiError from '~/utils/ApiError'
-import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
+import { ORDER_STATUS } from '~/utils/constants'
+import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE, ORDER_STATUS_MESSAGE } from '~/utils/validators'
 
 const clusterOrder = async (req, res, next) => {
   const validateCondition = Joi.object({
@@ -58,7 +59,20 @@ const addOrder = async (req, res, next) => {
   } catch (error) { next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message)) }
 }
 
+const updateOrderStatus = async (req, res, next) => {
+  const validationCondition = Joi.object({
+    orderId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),
+    status: Joi.string().required().pattern(ORDER_STATUS).message(ORDER_STATUS_MESSAGE)
+  })
+
+  try {
+    await validationCondition.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error) { next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error.message))) }
+}
+
 export const orderValidation = {
   addOrder,
-  clusterOrder
+  clusterOrder,
+  updateOrderStatus
 }

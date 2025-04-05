@@ -18,7 +18,7 @@ const clusterOrder = async (buyerId, reqBody) => {
     // Phân loại từng đơn hàng
     let clusteredOrderList = []
 
-    for ( let item of itemList ) {
+    for (let item of itemList) {
       const { productId, typeId, quantity } = item
       const product = await productModel.findOneById(productId)
 
@@ -27,7 +27,7 @@ const clusterOrder = async (buyerId, reqBody) => {
       // Thông số của loại sản phẩm
       if (!product.typeFeature) throw new ApiError(StatusCodes.CONFLICT, 'Sản phẩm không có type')
       const { typeName, discount, price } = (product.typeFeature).find((type) => type.typeId.toString() === typeId)
-      const finalPrice = price*( 1 - discount/100 )
+      const finalPrice = price * (1 - discount / 100)
 
 
       // Tìm shop đầu tiên có loại sản phẩm này
@@ -54,25 +54,25 @@ const clusterOrder = async (buyerId, reqBody) => {
 
 
       itemQuantityArr.forEach((quantity) => {
-        let foundClusteredOrder = clusteredOrderList.find((order) => order.shopId.toString() === foundShopId.toString() && order.orgPrice + finalPrice*quantity <= 50000000)
+        let foundClusteredOrder = clusteredOrderList.find((order) => order.shopId.toString() === foundShopId.toString() && order.orgPrice + finalPrice * quantity <= 50000000)
         // Validate lại item trong itemList
         const validItem = {
           ...item,
           quantity: quantity,
-          productName : product.name,
+          productName: product.name,
           typeName: typeName,
           price: finalPrice,
           avatar: product.avatar
         }
         if (foundClusteredOrder) {
           foundClusteredOrder.itemList.push(validItem)
-          foundClusteredOrder.orgPrice += finalPrice*quantity
+          foundClusteredOrder.orgPrice += finalPrice * quantity
         } else {
           const newClusteredOrder = {
             buyerId: buyerId,
             sellerId: product.sellerId,
             shopId: foundShopId,
-            orgPrice: finalPrice*quantity,
+            orgPrice: finalPrice * quantity,
             shopAddress: shopAddress,
             itemList: [validItem]
           }
@@ -100,10 +100,10 @@ const addOrder = async (buyerId, reqBody) => {
 
 
     let updatedItemList = []
-    for ( let item of reqBody.itemList) {
+    for (let item of reqBody.itemList) {
       const updatedItem = await productModel.increaseStock(item.productId, item.typeId, reqBody.shopId, -item.quantity)
       await cartModel.deleteItem(buyerId, {
-        productId : item.productId,
+        productId: item.productId,
         typeId: item.typeId
       })
       updatedItemList.push(updatedItem)
@@ -231,8 +231,26 @@ const getAllOrdersForSeller = async (sellerId) => {
   } catch (error) { throw error }
 }
 
+const getAllOrdersForBuyer = async (buyerId) => {
+  try {
+    const result = await orderModel.getAllOrdersForBuyer(buyerId)
+    return result
+  } catch (error) { throw error }
+}
+
+const updateOrderStatus = async (reqBody) => {
+  try {
+    const { orderId, status } = reqBody
+    const updatedOrder = await orderModel.updateOrderStatus(orderId, status)
+
+    return updatedOrder
+  } catch (error) { throw error }
+}
+
 export const orderService = {
   addOrder,
   clusterOrder,
-  getAllOrdersForSeller
+  getAllOrdersForSeller,
+  updateOrderStatus,
+  getAllOrdersForBuyer
 }

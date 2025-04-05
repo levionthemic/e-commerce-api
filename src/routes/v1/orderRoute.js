@@ -10,6 +10,14 @@ Router.route('/cluster')
 Router.route('/add')
   .post(orderValidation.addOrder, orderController.addOrder)
 
+Router.route('/get-all')
+  .get(orderController.getAllOrdersForBuyer)
+
 Router.route('/seller/get-all')
   .get(orderController.getAllOrdersForSeller)
+
+Router.route('/update-status')
+  .post(orderValidation.updateOrderStatus, orderController.updateOrderStatus)
+
+
 export const orderRoute = Router

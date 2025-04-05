@@ -1,3 +1,4 @@
+import { CANCELLED } from 'dns'
 import { env } from '~/config/environment'
 
 export const WHITELIST_DOMAINS = [
@@ -27,4 +28,12 @@ export const ACCOUNT_ROLE = {
   BUYER: 'buyer',
   SELLER: 'seller',
   ADMIN: 'admin'
+}
+
+export const ORDER_STATUS = {
+  PENDING: 'pending',
+  SHIPPING: 'shipping',
+  SUCCESS: 'success',
+  FAIL: 'fail',
+  CANCELLED: 'cancelled'
 }

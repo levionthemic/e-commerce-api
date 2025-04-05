@@ -1,6 +1,7 @@
 import Joi from 'joi'
-import { ObjectId } from 'mongodb'
+import { ObjectId, ReturnDocument } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
+import { ORDER_STATUS } from '~/utils/constants'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE, OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators'
 
 
@@ -15,7 +16,7 @@ const ORDER_COLLECTION_SCHEMA = Joi.object({
   buyerPhone: Joi.string().required(),
   buyerName: Joi.string().required(),
   buyerEmail: Joi.string().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE),
-  status: Joi.string().default('success'),
+  status: Joi.string().default(ORDER_STATUS.PENDING),
   note: Joi.string().allow(''),
   buyerAddress: Joi.object({
     province: Joi.number().required(),
@@ -50,7 +51,7 @@ const validateBeforeAsync = async (data) => {
 const findOneById = async (orderId) => {
   try {
     const foundOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({
-      _id : new ObjectId(orderId),
+      _id: new ObjectId(orderId),
       _deleted: false
     })
     return foundOrder
@@ -70,8 +71,8 @@ const addOrder = async (orderData) => {
     validOrderData.itemList = validOrderData.itemList.map((item) => {
       return {
         ...item,
-        productId : new ObjectId(item.productId),
-        typeId : new ObjectId(item.typeId)
+        productId: new ObjectId(item.productId),
+        typeId: new ObjectId(item.typeId)
       }
     })
 
@@ -87,9 +88,34 @@ const addOrder = async (orderData) => {
 
 const getAllOrdersForSeller = async (sellerId) => {
   try {
-    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ sellerId: new ObjectId(sellerId ) } ).toArray()
+    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ sellerId: new ObjectId(sellerId) }).toArray()
     return result || []
   } catch (error) { throw new Error(error) }
+}
+
+const getAllOrdersForBuyer = async (buyerId) => {
+  try {
+    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ buyerId: new ObjectId(buyerId) }).toArray()
+    return result || []
+  } catch (error) { throw new Error(error) }
+}
+
+const updateOrderStatus = async (orderId, status) => {
+  try {
+    const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
+      {
+        $and: [
+          { _id: new ObjectId(orderId) },
+          { _deleted: false }
+        ]
+      },
+      { $set: { status: ORDER_STATUS.SHIPPING } },
+      { returnDocument: status }
+    )
+    return updatedOrder
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 
 export const orderModel = {
@@ -97,5 +123,7 @@ export const orderModel = {
   ORDER_COLLECTION_SCHEMA,
   addOrder,
   findOneById,
-  getAllOrdersForSeller
+  getAllOrdersForSeller,
+  updateOrderStatus,
+  getAllOrdersForBuyer
 }
