@@ -1,4 +1,3 @@
-import { CANCELLED } from 'dns'
 import { env } from '~/config/environment'
 
 export const WHITELIST_DOMAINS = [
