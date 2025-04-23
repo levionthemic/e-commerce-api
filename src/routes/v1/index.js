@@ -19,8 +19,8 @@ Router.get('/status', (req, res) => {
 })
 
 /* Buyer APIs */
-Router.use('/products', authMiddleware.isAuthorized, productRoute)
-Router.use('/categories', authMiddleware.isAuthorized, categoryRoute)
+Router.use('/products', productRoute)
+Router.use('/categories', categoryRoute)
 Router.use('/auth', authRoute)
 Router.use('/cart', authMiddleware.isAuthorized, cartRoute)
 Router.use('/buyer', authMiddleware.isAuthorized, buyerRoute)

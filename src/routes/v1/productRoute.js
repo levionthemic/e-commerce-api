@@ -1,12 +1,13 @@
 import express from 'express'
 import { productController } from '~/controllers/productController'
+import { authMiddleware } from '~/middlewares/authMiddleware'
 import { productValidation } from '~/validations/productValidation'
 
 const Router = express.Router()
 
 Router.route('/')
   .get(productController.getProducts)
-  .post(productValidation.createProduct)
+  .post(authMiddleware.isAuthorized, productValidation.createProduct)
 
 Router.route('/filter')
   .get(productController.getProductsWithFilters)
@@ -16,7 +17,7 @@ Router.route('/filter')
 
 Router.route('/:id')
   .get(productController.getDetails)
-  .put(productValidation.update, productController.update)
+  .put(authMiddleware.isAuthorized, productValidation.update, productController.update)
 //   .delete(productController.deleteProduct)
 
 export const productRoute = Router
