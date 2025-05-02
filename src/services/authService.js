@@ -11,6 +11,7 @@ import axios from 'axios'
 import { buyerModel } from '~/models/buyerModel'
 import { sellerModel } from '~/models/sellerModel'
 import { cartModel } from '~/models/cartModel'
+import { sessionModel } from '~/models/sessionModel'
 
 const getModel = (role) => {
   if (role === ACCOUNT_ROLE.BUYER) {
@@ -22,7 +23,7 @@ const getModel = (role) => {
 }
 
 /* eslint-disable no-useless-catch */
-const login = async (reqBody) => {
+const login = async (reqBody, userAgent, ipAddress) => {
 
   try {
     const existUser = await getModel(reqBody.role).findOneByEmail(reqBody.email)
@@ -50,7 +51,19 @@ const login = async (reqBody) => {
       env.REFRESH_TOKEN_LIFE
     )
 
-    return { ...pickUser(existUser), accessToken, refreshToken, role: reqBody.role }
+    // Store refreshToken in DB and send sesssionId to FE
+    const sessionId = uuidv4()
+
+    await sessionModel.create({
+      sessionId,
+      userId: existUser._id.toString(),
+      refreshToken,
+      userAgent: userAgent,
+      ipAddress: ipAddress,
+      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+    })
+
+    return { ...pickUser(existUser), accessToken, sessionId, role: reqBody.role }
   } catch (error) { throw error }
 }
 
@@ -159,10 +172,16 @@ const verifyAccount = async (reqBody) => {
   } catch (error) { throw error }
 }
 
-const refreshToken = async (clientRefreshToken) => {
+const refreshToken = async (clientSessionId) => {
   try {
+    const session = await sessionModel.findOneBySessionId(clientSessionId)
+
+    if (!session || session.isRevoked) {
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid session')
+    }
+
     const refresTokenDecoded = await JwtProvider.verify(
-      clientRefreshToken,
+      session.refreshToken,
       env.REFRESH_TOKEN_SECRET_SIGNATURE
     )
 

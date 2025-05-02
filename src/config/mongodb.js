@@ -1,7 +1,8 @@
 import { MongoClient, ServerApiVersion } from 'mongodb'
 import { env } from './environment'
+import { sessionModel } from '~/models/sessionModel'
 
-let trelloDatabaseInstance = null
+let dbInstance = null
 
 const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
   serverApi: {
@@ -14,14 +15,19 @@ const mongoClientInstance = new MongoClient(env.MONGODB_URI, {
 export const CONNECT_DB = async () => {
   await mongoClientInstance.connect()
 
-  trelloDatabaseInstance = mongoClientInstance.db(env.DATABASE_NAME)
+  dbInstance = mongoClientInstance.db(env.DATABASE_NAME)
+
+  await dbInstance.collection(sessionModel.SESSION_COLLECTION_NAME).createIndex(
+    { expiresAt: 1 },
+    { expireAfterSeconds: 0 }
+  )
 }
 
 export const GET_DB = () => {
-  if (!trelloDatabaseInstance) {
+  if (!dbInstance) {
     throw new Error('Must connect to Database first!')
   }
-  return trelloDatabaseInstance
+  return dbInstance
 }
 
 export const CLOSE_DB = async () => {
