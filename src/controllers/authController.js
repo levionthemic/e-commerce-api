@@ -40,7 +40,12 @@ const login = async (req, res, next) => {
 
 const register = async (req, res, next) => {
   try {
-    const createdUser = await authService.register(req.body)
+    let createdUser = {}
+    if (req.body.access_token) {
+      createdUser = await authService.registerWithGoogle(req.body)
+    } else {
+      createdUser = await authService.register(req.body)
+    }
     return res.status(StatusCodes.CREATED).json(createdUser)
   } catch (error) { next(error) }
 }

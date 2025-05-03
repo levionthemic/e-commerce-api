@@ -179,6 +179,38 @@ const register = async (reqBody) => {
   } catch (error) { throw error }
 }
 
+const registerWithGoogle = async (reqBody) => {
+  const googleAccessToken = reqBody.access_token
+  try {
+    const googleRes = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${googleAccessToken}`)
+    const user = googleRes.data
+
+    if (user.aud !== env.GOOGLE_CLIENT_ID) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Unauthorized: Invalid token audience')
+    }
+
+    const existUser = await buyerModel.findOneByEmail(user.email)
+    if (existUser) {
+      throw new ApiError(StatusCodes.CONFLICT, 'Email already existed!')
+    }
+
+    const newUserData = {
+      email: user.email,
+      username: user.email.split('@')[0],
+      isVerified: true,
+      verifyToken: null,
+      password: bcryptjs.hashSync(uuidv4(), 8)
+    }
+    const createdUser = await buyerModel.register(newUserData)
+
+    await cartModel.createNew(createdUser.insertedId.toString())
+
+    const getNewUser = await buyerModel.findOneById(createdUser.insertedId)
+
+    return { ...pickUser(getNewUser) }
+  } catch (error) { throw error }
+}
+
 const verifyAccount = async (reqBody) => {
   try {
     const existUser = await getModel(reqBody.role).findOneByEmail(reqBody.email)
@@ -230,6 +262,7 @@ export const authService = {
   login,
   loginWithGoogle,
   register,
+  registerWithGoogle,
   verifyAccount,
   refreshToken
 }

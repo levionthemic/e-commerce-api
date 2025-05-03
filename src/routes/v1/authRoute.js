@@ -11,6 +11,8 @@ Router.route('/login/google/callback')
 
 Router.route('/register')
   .post(authValidation.register, authController.register)
+Router.route('/register/google/callback')
+  .post(authController.register)
 
 Router.route('/verify-account')
   .put(authValidation.verifyAccount, authController.verifyAccount)
