@@ -24,7 +24,7 @@ const BUYER_COLLECTION_SCHEMA = Joi.object({
   avatar: Joi.string(),
 
   isVerified: Joi.boolean().required().default(false),
-  verifyToken: Joi.string().required().default(null),
+  verifyToken: Joi.string().required().default(null).allow(null),
 
   discountList: Joi.array().items({
     discountId: Joi.string().required().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE),

@@ -12,7 +12,7 @@ const login = async (req, res, next) => {
     const ipAddress = req.ip
 
     if (req.body.access_token) {
-      result = await authService.loginWithGoogle(req.body)
+      result = await authService.loginWithGoogle(req.body, userAgent, ipAddress)
     } else {
       result = await authService.login(req.body, userAgent, ipAddress)
     }

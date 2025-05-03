@@ -67,7 +67,7 @@ const login = async (reqBody, userAgent, ipAddress) => {
   } catch (error) { throw error }
 }
 
-const loginWithGoogle = async (reqBody) => {
+const loginWithGoogle = async (reqBody, userAgent, ipAddress) => {
   const googleAccessToken = reqBody.access_token
   try {
     const googleRes = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${googleAccessToken}`)
@@ -80,14 +80,28 @@ const loginWithGoogle = async (reqBody) => {
     const existUserFromBuyer = await buyerModel.findOneByEmail(user.email)
     const existUserFromSeller = await sellerModel.findOneByEmail(user.email)
 
-    const existUser = existUserFromBuyer || existUserFromSeller
+    let existUser = existUserFromBuyer || existUserFromSeller
 
     let role = ''
     if (existUserFromBuyer) role = ACCOUNT_ROLE.BUYER
     if (existUserFromSeller) role = ACCOUNT_ROLE.SELLER
 
-    if (!existUser) throw new ApiError(StatusCodes.NOT_FOUND, 'Tài khoản của bạn không tồn tại!')
-    if (!existUser.isVerified) throw new ApiError(StatusCodes.NOT_ACCEPTABLE, 'Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra và xác thực trong email của bạn!')
+    // Email not exist, create new account without verification
+    if (!existUser) {
+      const newUserData = {
+        email: user.email,
+        username: user.email.split('@')[0],
+        isVerified: true,
+        verifyToken: null,
+        password: bcryptjs.hashSync(uuidv4(), 8)
+      }
+      const createdUser = await buyerModel.register(newUserData)
+      existUser = await buyerModel.findOneById(createdUser.insertedId)
+      role = ACCOUNT_ROLE.BUYER
+
+      // Create Cart if role is buyer
+      await cartModel.createNew(createdUser.insertedId.toString())
+    }
 
     const userInfo = {
       _id: existUser._id,
@@ -106,7 +120,19 @@ const loginWithGoogle = async (reqBody) => {
       env.REFRESH_TOKEN_LIFE
     )
 
-    return { ...pickUser(existUser), accessToken, refreshToken, role }
+    // Store refreshToken in DB and send sesssionId to FE
+    const sessionId = uuidv4()
+
+    await sessionModel.create({
+      sessionId,
+      userId: existUser._id.toString(),
+      refreshToken,
+      userAgent: userAgent,
+      ipAddress: ipAddress,
+      expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+    })
+
+    return { ...pickUser(existUser), accessToken, sessionId, role }
   } catch (error) { throw error }
 }
 
