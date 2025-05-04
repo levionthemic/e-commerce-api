@@ -9,16 +9,19 @@ const getCart = async (buyerId) => {
   try {
     const result = await cartModel.getCart(buyerId)
     const fullProducts = []
-    for (let item of result.itemList) {
-      const productDetail = await productModel.findOneById(item.productId)
-      const type = productDetail.typeFeature.find(type => type.typeId.toString() === item.typeId.toString())
-      delete productDetail['shopTypes']
-      delete productDetail['typeFeature']
-      fullProducts.push({
-        ...productDetail,
-        type: type
-      })
+    if (result.itemList) {
+      for (let item of result.itemList) {
+        const productDetail = await productModel.findOneById(item.productId)
+        const type = productDetail.typeFeature.find(type => type.typeId.toString() === item.typeId.toString())
+        delete productDetail['shopTypes']
+        delete productDetail['typeFeature']
+        fullProducts.push({
+          ...productDetail,
+          type: type
+        })
+      }
     }
+
     return { ...result, fullProducts }
   } catch (error) { throw error }
 }
