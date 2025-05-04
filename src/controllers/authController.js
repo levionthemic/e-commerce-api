@@ -24,12 +24,20 @@ const login = async (req, res, next) => {
       maxAge: ms('14 days')
     })
 
-    res.cookie('sessionId', result.sessionId, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: ms('14 days')
-    })
+    if (req.body.rememberMe) {
+      res.cookie('sessionId', result.sessionId, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: ms('14 days')
+      })
+    } else {
+      res.cookie('sessionId', result.sessionId, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none'
+      })
+    }
 
     delete result['accessToken']
     delete result['refreshToken']

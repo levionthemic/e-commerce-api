@@ -27,7 +27,8 @@ const login = async (req, res, next) => {
       .message(PASSWORD_RULE_MESSAGE),
     role: Joi.string()
       .required()
-      .valid(...Object.values(USER_ROLES))
+      .valid(...Object.values(USER_ROLES)),
+    rememberMe: Joi.boolean().required()
   })
 
   try {
