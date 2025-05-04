@@ -49,8 +49,20 @@ const verifyAccount = async (req, res, next) => {
   } catch (error) { next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message)) }
 }
 
+const forgotPassword = async (req, res, next) => {
+  const correctCondition = Joi.object({
+    email: Joi.string().required().pattern(EMAIL_RULE).message(EMAIL_RULE_MESSAGE)
+  })
+
+  try {
+    await correctCondition.validateAsync(req.body, { abortEarly: false })
+    next()
+  } catch (error) { next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, new Error(error).message)) }
+}
+
 export const authValidation = {
   login,
   register,
-  verifyAccount
+  verifyAccount,
+  forgotPassword
 }

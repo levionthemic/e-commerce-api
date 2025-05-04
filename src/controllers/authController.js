@@ -83,10 +83,28 @@ const logout = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const forgotPassword = async (req, res, next) => {
+  try {
+    await authService.forgotPassword(req.body)
+
+    res.status(StatusCodes.OK).json({ status: 'success' })
+  } catch (error) { next(error) }
+}
+
+const verifyOtp = async (req, res, next) => {
+  try {
+    const result = await authService.verifyOtp(req.body)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) { next(error) }
+}
+
 export const authController = {
   login,
   register,
   verifyAccount,
   refreshToken,
-  logout
+  logout,
+  forgotPassword,
+  verifyOtp
 }

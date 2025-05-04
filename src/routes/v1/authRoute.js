@@ -23,4 +23,10 @@ Router.route('/logout')
 Router.route('/refresh-token')
   .get(authController.refreshToken)
 
+Router.route('/forgot-password')
+  .post(authValidation.forgotPassword, authController.forgotPassword)
+
+Router.route('/otp-verify')
+  .post(authController.verifyOtp)
+
 export const authRoute = Router

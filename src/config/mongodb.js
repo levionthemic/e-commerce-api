@@ -1,6 +1,7 @@
 import { MongoClient, ServerApiVersion } from 'mongodb'
 import { env } from './environment'
 import { sessionModel } from '~/models/sessionModel'
+import { otpModel } from '~/models/otpModel'
 
 let dbInstance = null
 
@@ -18,6 +19,11 @@ export const CONNECT_DB = async () => {
   dbInstance = mongoClientInstance.db(env.DATABASE_NAME)
 
   await dbInstance.collection(sessionModel.SESSION_COLLECTION_NAME).createIndex(
+    { expiresAt: 1 },
+    { expireAfterSeconds: 0 }
+  )
+
+  await dbInstance.collection(otpModel.OTP_COLLECTION_NAME).createIndex(
     { expiresAt: 1 },
     { expireAfterSeconds: 0 }
   )
