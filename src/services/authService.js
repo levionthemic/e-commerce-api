@@ -317,7 +317,7 @@ const forgotPassword = async (reqBody) => {
     const existUser = await buyerModel.findOneByEmail(email)
 
     if (!existUser) {
-      throw new ApiError(StatusCodes.CONFLICT, 'Email not existed!')
+      throw new ApiError(StatusCodes.CONFLICT, 'Email không tồn tại!')
     }
 
     const otpCode = generateSecureOTP()
@@ -420,6 +420,27 @@ const verifyOtp = async (reqBody) => {
   }
 }
 
+const resetPassword = async (reqBody) => {
+  try {
+    const { resetToken, password } = reqBody
+
+    const resetTokenDecoded = await JwtProvider.verify(
+      resetToken,
+      env.ACCESS_TOKEN_SECRET_SIGNATURE
+    )
+
+    const user = await buyerModel.findOneByEmail(resetTokenDecoded.email)
+
+    const result = await buyerModel.update(user._id, {
+      password: bcryptjs.hashSync(password, 8)
+    })
+
+    return result
+  } catch (error) {
+    throw error
+  }
+}
+
 export const authService = {
   login,
   loginWithGoogle,
@@ -428,5 +449,6 @@ export const authService = {
   verifyAccount,
   refreshToken,
   forgotPassword,
-  verifyOtp
+  verifyOtp,
+  resetPassword
 }

@@ -35,7 +35,9 @@ const login = async (req, res, next) => {
     delete result['refreshToken']
 
     res.status(StatusCodes.OK).json(result)
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
 const register = async (req, res, next) => {
@@ -47,14 +49,18 @@ const register = async (req, res, next) => {
       createdUser = await authService.register(req.body)
     }
     return res.status(StatusCodes.CREATED).json(createdUser)
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
 const verifyAccount = async (req, res, next) => {
   try {
     const verifiedUser = await authService.verifyAccount(req.body)
     return res.status(StatusCodes.CREATED).json(verifiedUser)
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
 const refreshToken = async (req, res, next) => {
@@ -68,7 +74,12 @@ const refreshToken = async (req, res, next) => {
     })
     res.status(StatusCodes.OK).json({ accessToken: result.accessToken })
   } catch (error) {
-    next(new ApiError(StatusCodes.UNAUTHORIZED, 'Please Sign In! (Error from refresh Token)'))
+    next(
+      new ApiError(
+        StatusCodes.UNAUTHORIZED,
+        'Please Sign In! (Error from refresh Token)'
+      )
+    )
   }
 }
 
@@ -80,7 +91,9 @@ const logout = async (req, res, next) => {
     res.clearCookie('sessionId')
 
     res.status(StatusCodes.OK).json({ loggedOut: true })
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
 const forgotPassword = async (req, res, next) => {
@@ -88,7 +101,9 @@ const forgotPassword = async (req, res, next) => {
     await authService.forgotPassword(req.body)
 
     res.status(StatusCodes.OK).json({ status: 'success' })
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
 const verifyOtp = async (req, res, next) => {
@@ -96,7 +111,19 @@ const verifyOtp = async (req, res, next) => {
     const result = await authService.verifyOtp(req.body)
 
     res.status(StatusCodes.OK).json(result)
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
+}
+
+const resetPassword = async (req, res, next) => {
+  try {
+    const result = await authService.resetPassword(req.body)
+
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
 }
 
 export const authController = {
@@ -106,5 +133,6 @@ export const authController = {
   refreshToken,
   logout,
   forgotPassword,
-  verifyOtp
+  verifyOtp,
+  resetPassword
 }

@@ -29,4 +29,7 @@ Router.route('/forgot-password')
 Router.route('/otp-verify')
   .post(authController.verifyOtp)
 
+Router.route('/reset-password')
+  .put(authValidation.resetPassword, authController.resetPassword)
+
 export const authRoute = Router
