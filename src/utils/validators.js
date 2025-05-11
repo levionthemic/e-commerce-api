@@ -9,3 +9,4 @@ export const PASSWORD_RULE_MESSAGE = 'Password must include at least 1 letter, a
 export const PASSWORD_CONFIRMATION_MESSAGE = 'Password Confirmation does not match!'
 export const PHONE_RULE = /^0(2|3|5|7|8|9)\d{8}$/
 export const PHONE_RULE_MESSAGE = 'Số điện thoại không hợp lí.'
+export const ORDER_STATUS_MESSAGE = 'Trạng thái của đơn hàng không hợp lệ'

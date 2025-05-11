@@ -28,3 +28,11 @@ export const ACCOUNT_ROLE = {
   SELLER: 'seller',
   ADMIN: 'admin'
 }
+
+export const ORDER_STATUS = {
+  PENDING: 'pending',
+  SHIPPING: 'shipping',
+  SUCCESS: 'success',
+  FAIL: 'fail',
+  CANCELLED: 'cancelled'
+}

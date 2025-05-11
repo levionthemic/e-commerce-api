@@ -31,9 +31,40 @@ const addOrder = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+const getAllOrdersForSeller = async (req, res, next) => {
+  try {
+    const sellerId = req.jwtDecoded._id
+
+    const listOrders = await orderService.getAllOrdersForSeller(sellerId)
+
+    res.status(StatusCodes.OK).json(listOrders)
+  } catch (error) { next(error) }
+}
+
+const getAllOrdersForBuyer = async (req, res, next) => {
+  try {
+    const buyerId = req.jwtDecoded._id
+
+    const listOrders = await orderService.getAllOrdersForBuyer(buyerId)
+
+    res.status(StatusCodes.OK).json(listOrders)
+  } catch (error) { next(error) }
+}
+
+const updateOrderStatus = async (req, res, next) => {
+  try {
+
+    const updatedOrder = await orderService.updateOrderStatus(req.body)
+
+    res.status(StatusCodes.OK).json(updatedOrder)
+  } catch (error) { next(error) }
+}
 
 export const orderController = {
   addOrder,
-  clusterOrder
+  clusterOrder,
+  getAllOrdersForSeller,
+  updateOrderStatus,
+  getAllOrdersForBuyer
 }
 

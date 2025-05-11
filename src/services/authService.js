@@ -14,12 +14,15 @@ import { cartModel } from '~/models/cartModel'
 import { sessionModel } from '~/models/sessionModel'
 import { generateSecureOTP } from '~/utils/algorithms'
 import { otpModel } from '~/models/otpModel'
+import { adminModel } from '~/models/adminModel'
 
 const getModel = (role) => {
   if (role === ACCOUNT_ROLE.BUYER) {
     return buyerModel
   } else if (role === ACCOUNT_ROLE.SELLER) {
     return sellerModel
+  } else if (role === ACCOUNT_ROLE.ADMIN) {
+    return adminModel
   }
   return null
 }
