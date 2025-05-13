@@ -4,20 +4,32 @@ import { orderValidation } from '~/validations/orderValidation'
 
 const Router = express.Router()
 
-Router.route('/cluster')
-  .post(orderValidation.clusterOrder, orderController.clusterOrder)
+/**
+ * Buyer APIs
+ * @author taiki and levi
+ */
+Router.route('/cluster').post(
+  orderValidation.clusterOrder,
+  orderController.clusterOrder
+)
 
-Router.route('/add')
-  .post(orderValidation.addOrder, orderController.addOrder)
+Router.route('/add').post(orderValidation.addOrder, orderController.addOrder)
 
-Router.route('/get-all')
-  .get(orderController.getAllOrdersForBuyer)
+Router.route('/get-all').get(orderController.getAllOrders)
 
-Router.route('/seller/get-all')
-  .get(orderController.getAllOrdersForSeller)
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-Router.route('/update-status')
-  .post(orderValidation.updateOrderStatus, orderController.updateOrderStatus)
+/**
+ * Seller APIs
+ * @author taiki and levi
+ */
+Router.route('/seller/get-all').get(orderController.seller_getAllOrders)
 
+Router.route('/seller/update-status').post(
+  orderValidation.updateOrderStatus,
+  orderController.seller_updateOrderStatus
+)
 
 export const orderRoute = Router

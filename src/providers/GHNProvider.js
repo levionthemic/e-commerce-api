@@ -1,6 +1,6 @@
-const Joi = require('joi')
+import Joi from 'joi'
 
-const GHN_ORDER_SCHEMA = {
+const GHN_ORDER_SCHEMA = Joi.object({
   from_name: Joi.string().required(),
   from_phone: Joi.string().required(),
   from_address: Joi.string().required(),
@@ -44,6 +44,6 @@ const GHN_ORDER_SCHEMA = {
     height: Joi.number().required()
   }),
   cod_failed_amount: Joi.number()
-}
+})
 
 export const GHNProvider = { GHN_ORDER_SCHEMA }

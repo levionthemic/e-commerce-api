@@ -1,6 +1,10 @@
 import { StatusCodes } from 'http-status-codes'
 import { productService } from '~/services/productService'
 
+/**
+ * Buyer APIs
+ * @author taiki and levi
+ */
 const getProducts = async (req, res, next) => {
   try {
     const { page, itemsPerPage, q } = req.query
@@ -48,10 +52,33 @@ const update = async (req, res, next) => {
   } catch (error) { next(error) }
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+/**
+ * Seller APIs
+ * @author taiki and levi
+ */
+const seller_getProducts = async (req, res, next) => {
+  try {
+    const sellerId = req.jwtDecoded._id
+    const { page, itemsPerPage, q } = req.query
+    const queryFilters = q
+    const listProducts = await productService.seller_getProducts(sellerId, page, itemsPerPage, queryFilters)
+
+    res.status(StatusCodes.OK).json(listProducts)
+  } catch (error) { next(error) }
+}
+
 export const productController = {
+  // Buyer
   getProducts,
   getProductsWithFilters,
   createProduct,
   getDetails,
-  update
+  update,
+
+  // Seller
+  seller_getProducts
 }
