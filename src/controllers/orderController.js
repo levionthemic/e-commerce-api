@@ -24,7 +24,9 @@ const addOrder = async (req, res, next) => {
   try {
     const buyerId = req.jwtDecoded._id
 
-    const insertedOrder = await orderService.addOrder(buyerId, req.body)
+    const buyNow = req.query.buyNow ? true : false
+
+    const insertedOrder = await orderService.addOrder(buyerId, req.body, buyNow)
 
     res.status(StatusCodes.OK).json(insertedOrder)
   } catch (error) {

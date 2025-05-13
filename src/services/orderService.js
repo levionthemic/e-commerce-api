@@ -110,7 +110,7 @@ const clusterOrder = async (buyerId, reqBody) => {
   }
 }
 
-const addOrder = async (buyerId, reqBody) => {
+const addOrder = async (buyerId, reqBody, buyNow = false) => {
   try {
     const orderData = {
       ...reqBody,
@@ -121,17 +121,23 @@ const addOrder = async (buyerId, reqBody) => {
 
     let updatedItemList = []
     for (let item of reqBody.itemList) {
+      // Decrease stock
       const updatedItem = await productModel.increaseStock(
         item.productId,
         item.typeId,
         reqBody.shopId,
         -item.quantity
       )
+
+      // Increase sold
+      await productModel.update(item.productId, { sold: updatedItem.sold + 1 })
+
       // Với trường hợp Mua ngay, không xóa trong cart
-      await cartModel.deleteItem(buyerId, {
-        productId: item.productId,
-        typeId: item.typeId
-      })
+      if (!buyNow)
+        await cartModel.deleteItem(buyerId, {
+          productId: item.productId,
+          typeId: item.typeId
+        })
       updatedItemList.push(updatedItem)
     }
 
@@ -304,7 +310,10 @@ const seller_updateOrderStatus = async (reqBody) => {
       createdGHNOrder = await createGHNOrder(validGHNdata)
     }
 
-    const updatedOrder = await orderModel.seller_updateOrderStatus(orderId, status)
+    const updatedOrder = await orderModel.seller_updateOrderStatus(
+      orderId,
+      status
+    )
     return { updatedOrder, createdGHNOrder }
   } catch (error) {
     throw error
