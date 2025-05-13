@@ -180,6 +180,8 @@ const seller_getProducts = async (sellerId, page, itemsPerPage, queryFilters) =>
   try {
     const queryConditions = [{ sellerId: new ObjectId(sellerId), _deleted: false }]
 
+    let sortStatement = null
+
     if (queryFilters) {
       Object.keys(queryFilters).forEach(key => {
         if (key === 'name') {
@@ -198,13 +200,18 @@ const seller_getProducts = async (sellerId, page, itemsPerPage, queryFilters) =>
         if (key === 'maxPrice') queryConditions.push({ avgPrice: { $lt: parseInt(queryFilters[key]) } })
         if (key === 'categoryId') queryConditions.push({ [key]: new ObjectId(queryFilters[key]) })
         if (key === 'brandId') queryConditions.push({ [key]: new ObjectId(queryFilters[key]) })
+
+        if (key === 'sold') sortStatement = { $sort: { sold: parseInt(queryFilters[key]) } }
       })
     }
 
+    const pipeline = []
+    pipeline.push( { $match: { $and: queryConditions } })
+    if (sortStatement) pipeline.push(sortStatement)
+
     const query = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate(
       [
-        { $match: { $and: queryConditions } },
-        // { $sort: { name: 1 } },
+        ...pipeline,
         {
           $facet: {
             'queryProducts': [

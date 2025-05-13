@@ -177,7 +177,7 @@ const seller_getProducts = async (sellerId, page, itemsPerPage, queryFilters, fi
     }))
 
     // Get all categories and brands for filter data
-    if (!filterMode) {
+    if (filterMode) {
       const categories = [...new Map(
         results.products.map(product => [product?.category?._id.toString(), product?.category])
       ).values()]

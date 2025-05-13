@@ -105,9 +105,9 @@ const getAllOrders = async (buyerId) => {
  * Seller APIs
  * @author taiki and levi
  */
-const seller_getAllOrders = async (sellerId) => {
+const seller_getAllOrders = async (sellerId, isLatest = false) => {
   try {
-    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ sellerId: new ObjectId(sellerId) }).toArray()
+    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ sellerId: new ObjectId(sellerId) }).sort({ createdAt: isLatest ? -1 : 1 }).toArray()
     return result || []
   } catch (error) { throw new Error(error) }
 }

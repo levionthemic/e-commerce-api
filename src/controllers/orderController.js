@@ -55,8 +55,9 @@ const getAllOrders = async (req, res, next) => {
 const seller_getAllOrders = async (req, res, next) => {
   try {
     const sellerId = req.jwtDecoded._id
+    const isLatest = req.query.latest ? true : false
 
-    const listOrders = await orderService.seller_getAllOrders(sellerId)
+    const listOrders = await orderService.seller_getAllOrders(sellerId, isLatest)
 
     res.status(StatusCodes.OK).json(listOrders)
   } catch (error) {

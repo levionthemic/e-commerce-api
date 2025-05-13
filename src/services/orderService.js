@@ -11,6 +11,7 @@ import { sellerModel } from '~/models/sellerModel'
 // import { sellerModel } from '~/models/sellerModel'
 import { shopModel } from '~/models/shopModel'
 import { GHNProvider } from '~/providers/GHNProvider'
+import { getNameDetailForGhn } from '~/utils/algorithms'
 // import { GHNProvider } from '~/providers/GHNProvider'
 import ApiError from '~/utils/ApiError'
 import { ORDER_STATUS } from '~/utils/constants'
@@ -157,9 +158,9 @@ const getAllOrders = async (buyerId) => {
  * Seller APIs
  * @author taiki and levi
  */
-const seller_getAllOrders = async (sellerId) => {
+const seller_getAllOrders = async (sellerId, isLatest = false) => {
   try {
-    const result = await orderModel.seller_getAllOrders(sellerId)
+    const result = await orderModel.seller_getAllOrders(sellerId, isLatest)
     return result
   } catch (error) {
     throw error
@@ -168,8 +169,8 @@ const seller_getAllOrders = async (sellerId) => {
 
 const seller_updateOrderStatus = async (reqBody) => {
   try {
+    let createdGHNOrder = null
     const { orderId, status } = reqBody
-    const updatedOrder = await orderModel.seller_updateOrderStatus(orderId, status)
 
     if (status === ORDER_STATUS.SHIPPING) {
       // --------------------Xử lí API Create Order GHN---------------------------
@@ -183,16 +184,18 @@ const seller_updateOrderStatus = async (reqBody) => {
         buyerPhone,
         buyerName,
         note,
-        buyerAddress,
         shippingFee,
         itemList
       } = order
+
+      const buyerAddress = await getNameDetailForGhn(order.buyerAddress)
+
       const seller = await sellerModel.findOneById(sellerId)
       const sellerName = seller.name
 
       // Xử lí thông tin shop
       const shop = await shopModel.findOneById(shopId)
-      const shopAddress = shop.shopAddress
+      const shopAddress = await getNameDetailForGhn(shop.shopAddress)
       const shopPhone = shop.phone
 
       // Thông tin chưa được xử lí
@@ -234,20 +237,20 @@ const seller_updateOrderStatus = async (reqBody) => {
           from_name: sellerName,
           from_phone: shopPhone,
           from_address: shopAddress.address,
-          from_ward_name: shopAddress.ward,
-          from_district_name: shopAddress.district,
-          from_province_name: shopAddress.province,
+          from_ward_name: shopAddress.wardName,
+          from_district_name: shopAddress.districtName,
+          from_province_name: shopAddress.provinceName,
           to_name: buyerName,
           to_phone: buyerPhone,
           to_address: buyerAddress.address,
-          to_ward_name: buyerAddress.ward,
-          to_district_name: buyerAddress.district,
-          to_province_name: buyerAddress.province,
+          to_ward_name: buyerAddress.wardName,
+          to_district_name: buyerAddress.districtName,
+          to_province_name: buyerAddress.provinceName,
           return_phone: shopPhone,
           return_address: shopAddress.address,
-          return_district_name: shopAddress.district,
-          return_ward_name: shopAddress.ward,
-          return_province_name: shopAddress.province,
+          return_district_name: shopAddress.districtName,
+          return_ward_name: shopAddress.wardName,
+          return_province_name: shopAddress.provinceName,
           cod_amount: finalPrice - shippingFee,
           content: content,
           insurance_value: insuranceValue,
@@ -265,20 +268,20 @@ const seller_updateOrderStatus = async (reqBody) => {
           from_name: sellerName,
           from_phone: shopPhone,
           from_address: shopAddress.address,
-          from_ward_name: shopAddress.ward,
-          from_district_name: shopAddress.district,
-          from_province_name: shopAddress.province,
+          from_ward_name: shopAddress.wardName,
+          from_district_name: shopAddress.districtName,
+          from_province_name: shopAddress.provinceName,
           to_name: buyerName,
           to_phone: buyerPhone,
           to_address: buyerAddress.address,
-          to_ward_name: buyerAddress.ward,
-          to_district_name: buyerAddress.district,
-          to_province_name: buyerAddress.province,
+          to_ward_name: buyerAddress.wardName,
+          to_district_name: buyerAddress.districtName,
+          to_province_name: buyerAddress.provinceName,
           return_phone: shopPhone,
           return_address: shopAddress.address,
-          return_district_name: shopAddress.district,
-          return_ward_name: shopAddress.ward,
-          return_province_name: shopAddress.province,
+          return_district_name: shopAddress.districtName,
+          return_ward_name: shopAddress.wardName,
+          return_province_name: shopAddress.provinceName,
           cod_amount: finalPrice - shippingFee,
           content: content,
           weight: totalWeight,
@@ -298,11 +301,11 @@ const seller_updateOrderStatus = async (reqBody) => {
         { abortEarly: false }
       )
 
-      const createdGHNOrder = await createGHNOrder(validGHNdata)
-      return { updatedOrder, createdGHNOrder }
+      createdGHNOrder = await createGHNOrder(validGHNdata)
     }
 
-    return updatedOrder
+    const updatedOrder = await orderModel.seller_updateOrderStatus(orderId, status)
+    return { updatedOrder, createdGHNOrder }
   } catch (error) {
     throw error
   }
