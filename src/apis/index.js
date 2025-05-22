@@ -6,8 +6,8 @@ export const createGHNOrder = async (data) => {
   const config = {
     headers: {
       'Content-Type': 'application/json',
-      'ShopId': env.VITE_GHN_SHOP_ID,
-      'Token': env.VITE_GHN_TOKEN_API
+      'ShopId': env.GHN_SHOP_ID,
+      'Token': env.GHN_TOKEN_API
     }
   }
   const response = await authorizedAxiosInstance.post(url, data, config)

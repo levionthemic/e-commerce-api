@@ -47,7 +47,10 @@ const validateBeforeAsync = async (data) => {
   return await ORDER_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
 
-
+/**
+ * Buyer APIs
+ * @author taiki and levi
+ */
 const findOneById = async (orderId) => {
   try {
     const foundOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOne({
@@ -86,21 +89,30 @@ const addOrder = async (orderData) => {
 
 }
 
-const getAllOrdersForSeller = async (sellerId) => {
-  try {
-    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ sellerId: new ObjectId(sellerId) }).toArray()
-    return result || []
-  } catch (error) { throw new Error(error) }
-}
 
-const getAllOrdersForBuyer = async (buyerId) => {
+const getAllOrders = async (buyerId) => {
   try {
     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ buyerId: new ObjectId(buyerId) }).toArray()
     return result || []
   } catch (error) { throw new Error(error) }
 }
 
-const updateOrderStatus = async (orderId, status) => {
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+/**
+ * Seller APIs
+ * @author taiki and levi
+ */
+const seller_getAllOrders = async (sellerId, isLatest = false) => {
+  try {
+    const result = await GET_DB().collection(ORDER_COLLECTION_NAME).find({ sellerId: new ObjectId(sellerId) }).sort({ createdAt: isLatest ? -1 : 1 }).toArray()
+    return result || []
+  } catch (error) { throw new Error(error) }
+}
+
+const seller_updateOrderStatus = async (orderId, status) => {
   try {
     const updatedOrder = await GET_DB().collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
       {
@@ -121,9 +133,13 @@ const updateOrderStatus = async (orderId, status) => {
 export const orderModel = {
   ORDER_COLLECTION_NAME,
   ORDER_COLLECTION_SCHEMA,
+
+  // Buyer
   addOrder,
   findOneById,
-  getAllOrdersForSeller,
-  updateOrderStatus,
-  getAllOrdersForBuyer
+  getAllOrders,
+
+  // Seller
+  seller_updateOrderStatus,
+  seller_getAllOrders
 }

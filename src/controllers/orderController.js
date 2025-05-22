@@ -1,70 +1,89 @@
-
 import { StatusCodes } from 'http-status-codes'
 import { orderService } from '~/services/orderService'
 
 /**
- * CÁC BƯỚC TẠO ĐƠN HÀNG
- *
- * B1: Validate req.body. Dựa trên doc của API GHN để xác định các trường còn thiếu, cần thêm ở các Model có liên quan. Link doc: https://api.ghn.vn/home/docs/detail?id=112
- * B2: Tách đơn hàng theo shopId. Nghĩa là nếu 1 đơn hàng chứa các sản phẩm của n người bán, giả sử mỗi người bán có m đơn hàng thì sẽ tách thành n * m đơn hàng.
- * B3: Xóa các sản phẩm khỏi giỏ hàng
- * B4: Giảm stock và tăng sold của các sản phẩm tương ứng
- * B5: Gọi API tạo đơn hàng của GHN. Sau đó xử lý data trước khi thêm vào db. Link doc: https://api.ghn.vn/home/docs/detail?id=122
+ * Buyer APIs
+ * @author taiki and levi
  */
 const clusterOrder = async (req, res, next) => {
   try {
     const buyerId = req.jwtDecoded._id
 
-    const clusteredOrderList = await orderService.clusterOrder(buyerId, req.body)
+    const clusteredOrderList = await orderService.clusterOrder(
+      buyerId,
+      req.body
+    )
 
     res.status(StatusCodes.OK).json(clusteredOrderList)
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
 const addOrder = async (req, res, next) => {
   try {
     const buyerId = req.jwtDecoded._id
 
-    const insertedOrder = await orderService.addOrder(buyerId, req.body)
+    const buyNow = req.query.buyNow ? true : false
+
+    const insertedOrder = await orderService.addOrder(buyerId, req.body, buyNow)
 
     res.status(StatusCodes.OK).json(insertedOrder)
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
-const getAllOrdersForSeller = async (req, res, next) => {
-  try {
-    const sellerId = req.jwtDecoded._id
-
-    const listOrders = await orderService.getAllOrdersForSeller(sellerId)
-
-    res.status(StatusCodes.OK).json(listOrders)
-  } catch (error) { next(error) }
-}
-
-const getAllOrdersForBuyer = async (req, res, next) => {
+const getAllOrders = async (req, res, next) => {
   try {
     const buyerId = req.jwtDecoded._id
 
-    const listOrders = await orderService.getAllOrdersForBuyer(buyerId)
+    const listOrders = await orderService.getAllOrders(buyerId)
 
     res.status(StatusCodes.OK).json(listOrders)
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
-const updateOrderStatus = async (req, res, next) => {
-  try {
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 
-    const updatedOrder = await orderService.updateOrderStatus(req.body)
+/**
+ * Seller APIs
+ * @author taiki and levi
+ */
+const seller_getAllOrders = async (req, res, next) => {
+  try {
+    const sellerId = req.jwtDecoded._id
+    const isLatest = req.query.latest ? true : false
+
+    const listOrders = await orderService.seller_getAllOrders(sellerId, isLatest)
+
+    res.status(StatusCodes.OK).json(listOrders)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const seller_updateOrderStatus = async (req, res, next) => {
+  try {
+    const updatedOrder = await orderService.seller_updateOrderStatus(req.body)
 
     res.status(StatusCodes.OK).json(updatedOrder)
-  } catch (error) { next(error) }
+  } catch (error) {
+    next(error)
+  }
 }
 
 export const orderController = {
+  // Buyer
   addOrder,
   clusterOrder,
-  getAllOrdersForSeller,
-  updateOrderStatus,
-  getAllOrdersForBuyer
-}
+  getAllOrders,
 
+  // Seller
+  seller_getAllOrders,
+  seller_updateOrderStatus
+}

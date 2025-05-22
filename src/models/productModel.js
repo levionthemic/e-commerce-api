@@ -48,6 +48,10 @@ const PRODUCT_COLLECTION_SCHEMA = Joi.object({
 
 const INVALID_UPDATE_FIELDS = ['sellerId']
 
+/**
+ * Buyer APIs
+ * @author taiki and levi
+ */
 const getProducts = async (page, itemsPerPage, queryFilters) => {
   try {
     const queryConditions = [{ _deleted: false }]
@@ -164,13 +168,82 @@ const increaseStock = async (productId, typeId, shopId, quantity) => {
   } catch (error) { throw new Error(error) }
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+/**
+ * Seller APIs
+ * @author taiki and levi
+ */
+const seller_getProducts = async (sellerId, page, itemsPerPage, queryFilters) => {
+  try {
+    const queryConditions = [{ sellerId: new ObjectId(sellerId), _deleted: false }]
+
+    let sortStatement = null
+
+    if (queryFilters) {
+      Object.keys(queryFilters).forEach(key => {
+        if (key === 'name') {
+          const slug = unidecode(queryFilters[key]).trim().replace(/\s+/g, '-')
+          const regexSlug = new RegExp(slug, 'i')
+
+          queryConditions.push({
+            $or: [
+              { [key]: { $regex: new RegExp(queryFilters[key], 'i') } },
+              { slug: { $regex: regexSlug } }
+            ]
+          })
+        }
+        if (key === 'rating') queryConditions.push({ [key]: { $gt: parseInt(queryFilters[key]) - 1 } })
+        if (key === 'minPrice') queryConditions.push({ avgPrice: { $gt: parseInt(queryFilters[key]) } })
+        if (key === 'maxPrice') queryConditions.push({ avgPrice: { $lt: parseInt(queryFilters[key]) } })
+        if (key === 'categoryId') queryConditions.push({ [key]: new ObjectId(queryFilters[key]) })
+        if (key === 'brandId') queryConditions.push({ [key]: new ObjectId(queryFilters[key]) })
+
+        if (key === 'sold') sortStatement = { $sort: { sold: parseInt(queryFilters[key]) } }
+      })
+    }
+
+    const pipeline = []
+    pipeline.push( { $match: { $and: queryConditions } })
+    if (sortStatement) pipeline.push(sortStatement)
+
+    const query = await GET_DB().collection(PRODUCT_COLLECTION_NAME).aggregate(
+      [
+        ...pipeline,
+        {
+          $facet: {
+            'queryProducts': [
+              { $skip: pagingSkipValue(page, itemsPerPage) },
+              { $limit: itemsPerPage }
+            ],
+            'queryTotalProducts': [{ $count: 'totalProductsCount' }]
+          }
+        }
+      ],
+      { collation: { locale: 'en' } }
+    ).toArray()
+
+    return {
+      products: query[0].queryProducts || [],
+      totalProducts: query[0].queryTotalProducts[0]?.totalProductsCount || 0
+    }
+  } catch (error) { throw new Error(error) }
+}
+
 export const productModel = {
   PRODUCT_COLLECTION_NAME,
   PRODUCT_COLLECTION_SCHEMA,
+
+  // Buyer
   getProducts,
   createProduct,
   getDetails,
   findOneById,
   update,
-  increaseStock
+  increaseStock,
+
+  // Seller
+  seller_getProducts
 }
